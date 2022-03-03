@@ -1,0 +1,9 @@
+*.log
+*.aux
+*~
+*.marks
+*.pdf
+
+output/
+
+
