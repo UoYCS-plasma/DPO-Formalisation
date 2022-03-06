@@ -3,20 +3,7 @@ theory Graph
   imports Main
 begin
 
-  (* 
-
-text \<open>
-\begin{enumerate}
-  \item dfsdf
-\end{enumerate}
-
-\begin{tikzpicture}
-\draw [red] (0,0) rectangle (1,1);
-\end{tikzpicture}
-\<close> *)
-
 section \<open>Graph\<close>
- 
 
 abbreviation totalize :: "('a \<rightharpoonup> 'b) \<Rightarrow> 'a \<Rightarrow> 'b" where
 "totalize f a \<equiv> the (f a)"

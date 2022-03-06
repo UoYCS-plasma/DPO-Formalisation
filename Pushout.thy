@@ -7,7 +7,7 @@ section \<open>Pushout Diagram\<close>
 text_raw \<open>
 \begin{figure}[!htb]
   \centering
-  \includegraphics{figs/fig-pushout.pdf}
+  \includestandalone{figs/fig-pushout}
   \caption{Abstract Pushout}
 \end{figure}
 \<close>

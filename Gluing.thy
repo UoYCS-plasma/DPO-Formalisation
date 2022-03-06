@@ -7,7 +7,7 @@ section "Gluing"
 text_raw \<open>
 \begin{figure}[!htb]
   \centering
-  \includegraphics{figs/fig-pushout-gluing.pdf}
+  \includestandalone{figs/fig-pushout-gluing}
   \caption{Gluing Pushout}
 \end{figure}
 \<close>

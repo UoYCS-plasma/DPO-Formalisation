@@ -7,7 +7,7 @@ section "Deletion"
 text_raw \<open>
 \begin{figure}[!htb]
   \centering
-  \includegraphics{figs/fig-pushout-deletion.pdf}
+  \includestandalone{figs/fig-pushout-deletion}
   \caption{Deletion Pushout}
 \end{figure}
 \<close>

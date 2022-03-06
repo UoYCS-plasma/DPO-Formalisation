@@ -7,7 +7,7 @@ section \<open>Morphism\<close>
 text_raw \<open>
 \begin{figure}[!htb]
   \centering
-  \includegraphics{figs/fig-morphism.pdf}
+  \includestandalone{figs/fig-morphism}
   \caption{Morphism: Structure-preserving mapping}
 \end{figure}
 \<close>
@@ -115,7 +115,7 @@ subsection \<open>Composition\<close>
 text_raw \<open>
 \begin{figure}[!htb]
   \centering
-  \includegraphics{figs/fig-morphism-composition.pdf}
+  \includestandalone{figs/fig-morphism-composition}
   \caption{Abstract Pushout}
 \end{figure}
 \<close>
