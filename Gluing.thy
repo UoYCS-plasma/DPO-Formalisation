@@ -1033,7 +1033,8 @@ show \<open>case (u\<^sub>V, u\<^sub>E) of (u\<^sub>V, u\<^sub>E) \<Rightarrow> 
       consider
           (a) \<open>\<exists>y \<in> V\<^sub>D. j\<^sub>V y = Some x\<close>
           | (b) \<open>\<exists>y \<in> V\<^sub>R-V\<^sub>K. h\<^sub>V y = Some x\<close>
-        by (metis (no_types, hide_lams) Un_iff \<open>x \<in> V\<close> h\<^sub>V_def image_iff j\<^sub>V_def)
+        apply(simp add: h\<^sub>V_def j\<^sub>V_def  \<open>x \<in> V\<close>) 
+        using \<open>x \<in> V\<close> h\<^sub>V_def j\<^sub>V_def by blast
 
       then show ?thesis
       proof (cases)
@@ -1104,7 +1105,7 @@ show \<open>case (u\<^sub>V, u\<^sub>E) of (u\<^sub>V, u\<^sub>E) \<Rightarrow> 
       consider
           (a) \<open>\<exists>y \<in> E\<^sub>D. j\<^sub>E y = Some x\<close>
         | (b) \<open>\<exists>y \<in> E\<^sub>R-E\<^sub>K. h\<^sub>E y = Some x\<close>
-        by (metis (no_types, hide_lams) Un_iff \<open>x \<in> E\<close> h\<^sub>E_def image_iff j\<^sub>E_def)
+        by (metis (no_types) Un_iff \<open>x \<in> E\<close> h\<^sub>E_def image_iff j\<^sub>E_def)
 
       then show ?thesis
       proof (cases)
