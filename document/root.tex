@@ -1,4 +1,5 @@
 \documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
 \usepackage{isabelle,isabellesym}
 
 % further packages required for unusual symbols (see also
@@ -12,8 +13,8 @@
 %\usepackage{eurosym}
   %for \<euro>
 
-%\usepackage[only,bigsqcap]{stmaryrd}
-  %for \<Sqinter>
+%\usepackage[only,bigsqcap,bigparallel,fatsemi,interleave,sslash]{stmaryrd}
+  %for \<Sqinter>, \<Parallel>, \<Zsemi>, \<Parallel>, \<sslash>
 
 %\usepackage{eufrak}
   %for \<AA> ... \<ZZ>, \<aa> ... \<zz> (also included in amssymb)
@@ -22,17 +23,8 @@
   %for \<onequarter>, \<onehalf>, \<threequarters>, \<degree>, \<cent>,
   %\<currency>
 
-\usepackage{tikz}
-\usepackage{authblk}
-\usepackage[mode=buildnew]{standalone}
-
-%\usepackage{bibtex}
-%\bibliographystyle{plain}
-%\bibliography{root}
-
 % this should be the last package used
 \usepackage{pdfsetup}
-
 
 % urls in roman style, theory text in math-similar italics
 \urlstyle{rm}
@@ -44,18 +36,9 @@
 
 \begin{document}
 
-\title{DPO Formalisation in Isabelle}
-\author[] {Robert S\"oldner}
-\author[] {Detlef Plump}
-\affil[]{\small Department of Computer Science, University of York, York, UK}
-
-
+\title{DPO-Formal}
+\author{rsoeldner}
 \maketitle
-
-\begin{abstract}
-This formalisation is mainly based on~\cite{Ehrig-Ehrig-Prange-Taentzer06a}.
-\end{abstract}
-
 
 \tableofcontents
 
@@ -66,10 +49,8 @@ This formalisation is mainly based on~\cite{Ehrig-Ehrig-Prange-Taentzer06a}.
 \input{session}
 
 % optional bibliography
-\bibliographystyle{abbrv}
-\bibliography{root}
-
-
+%\bibliographystyle{abbrv}
+%\bibliography{root}
 
 \end{document}
 
