@@ -550,38 +550,6 @@ lemma xx:
   assumes \<open>graph G\<close>
   obtains \<open>identity_morphism G idM\<close>
   by (simp add: assms bijective_morphism.intro bijective_morphism_axioms.intro identity_morphism.intro identity_morphism_axioms_def morphism.intro morphism_axioms_def)
-(* 
-lemma
-  assumes \<open>bij_betw f A B\<close> and \<open>bij_betw f' B A\<close>
-  shows \<open>\<forall>v \<in> A. (f' \<circ> f) v = v\<close>
-
-  sledgehammer
-
-lemma (in bijective_morphism) bij_imp_inv:
-  assumes \<open>identity_morphism G id\<^sub>G\<close> and \<open>identity_morphism H id\<^sub>H\<close>
-  obtains f' where \<open>bijective_morphism H G f'\<close> and
-    \<open>\<forall>v \<in> V\<^bsub>G\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> f \<^esub>\<^sub>V v = \<^bsub>id\<^sub>G\<^esub>\<^sub>V v\<close> and \<open>\<forall>e \<in> E\<^bsub>G\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>id\<^sub>G\<^esub>\<^sub>E e\<close> and
-    \<open>\<forall>v \<in> V\<^bsub>H\<^esub>. \<^bsub>f  \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>id\<^sub>H\<^esub>\<^sub>V v\<close> and \<open>\<forall>e \<in> E\<^bsub>H\<^esub>. \<^bsub>f  \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>E e = \<^bsub>id\<^sub>H\<^esub>\<^sub>E e\<close> 
-proof -
-
-  obtain f' where \<open>bijective_morphism H G f'\<close> and 
-    \<open>\<forall>v \<in> V\<^bsub>G\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> f \<^esub>\<^sub>V v =  v\<close>
-    using ex_inverse
-    sledgehammer
-
-  have \<open>\<forall>v \<in> V\<^bsub>G\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> f \<^esub>\<^sub>V v = \<^bsub>id\<^sub>G\<^esub>\<^sub>V v\<close>
-    using identity_morphism.id_nodes[OF \<open>identity_morphism G id\<^sub>G\<close>] \<open>bijective_morphism H G f'\<close>
-    using bijective_morphism.bij_nodes
-    using bijective_morphism.bij_nodes[OF \<open>bijective_morphism H G f'\<close>]
-    using bij_nodes
-    unfolding bij_betw_def
-    unfolding morph_comp_def
-    apply auto
-    apply (intro_locales)
-
-    sledgehammer
- *)
-
 
 lemma comp_id_bij:
   assumes
@@ -634,72 +602,5 @@ next
     qed
   qed
 qed
-
-
-
-
-(* proof intro_locales
-  show \<open>graph G\<close>
-    using f
-    by (simp add: morphism_def)
- *)
-
-(* https://proofwiki.org/wiki/Bijection_iff_Left_and_Right_Inverse *)
-(* lemma
-  assumes
-    f: \<open>morphism G H f\<close> and
-  \<open>v \<in> V\<^bsub>G\<^esub>\<close> and \<open>e \<in> E\<^bsub>G\<^esub>\<close>
-shows \<open>bijective_morphism G H f \<longleftrightarrow> (\<exists>g\<^sub>1 g\<^sub>2. morphism H G g\<^sub>1 \<and> morphism H G g\<^sub>1 
-  \<and> \<^bsub>g\<^sub>1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = v
-  \<and> \<^bsub>g\<^sub>1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = e
-  \<and> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^sub>2\<^esub>\<^sub>V v = v
-  \<and> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^sub>2\<^esub>\<^sub>E e = e)\<close>
-proof
-  show \<open>\<exists>g\<^sub>1 g\<^sub>2. morphism H G g\<^sub>1 \<and> morphism H G g\<^sub>1 \<and> \<^bsub>g\<^sub>1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = v \<and> \<^bsub>g\<^sub>1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = e \<and> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^sub>2\<^esub>\<^sub>V v = v \<and> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^sub>2\<^esub>\<^sub>E e = e\<close> if \<open>bijective_morphism G H f\<close>
-    sorry
-next
-  show \<open>bijective_morphism G H f\<close> if \<open>\<exists>g\<^sub>1 g\<^sub>2. morphism H G g\<^sub>1 \<and> morphism H G g\<^sub>1 \<and> \<^bsub>g\<^sub>1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = v \<and> \<^bsub>g\<^sub>1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = e \<and> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^sub>2\<^esub>\<^sub>V v = v \<and> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^sub>2\<^esub>\<^sub>E e = e\<close>
-    sledgehammer
- *)
-(* 
-lemma
-  assumes 
-    f: \<open>morphism G H f\<close> and
-    g: \<open>morphism H G g\<close> and
-    id\<^sub>L: \<open>identity_morphism H id\<^sub>L\<close> and
-    id\<^sub>R: \<open>identity_morphism G id\<^sub>R\<close> and
-    \<open>v \<in> V\<^bsub>H\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>id\<^sub>L\<^esub>\<^sub>V v\<close> and
-    \<open>e \<in> E\<^bsub>H\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>id\<^sub>L\<^esub>\<^sub>E v\<close> and
-    \<open>v \<in> V\<^bsub>H\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>id\<^sub>R\<^esub>\<^sub>V v\<close> and
-    \<open>e \<in> E\<^bsub>H\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>id\<^sub>R\<^esub>\<^sub>E v\<close>
-  shows \<open>bijective_morphism G H f\<close>
-proof intro_locales
-  show \<open>graph G\<close>
-    using f
-    by (simp add: morphism_def)
-next
-  show \<open>graph H\<close>
-    using f
-    by (simp add: morphism_def)
-next
-  show \<open>morphism_axioms G H f\<close>
-    using f
-    by (simp add: morphism_def)
-next
-  show \<open>bijective_morphism_axioms G H f\<close>
-    sledgehammer
-  proof 
-    show \<open>bij_betw \<^bsub>f\<^esub>\<^sub>V V\<^bsub>G\<^esub> V\<^bsub>H\<^esub>\<close>
-    proof -
-      have \<open>inj_on \<^bsub>f\<^esub>\<^sub>V V\<^bsub>G\<^esub>\<close>
-        using assms
-        unfolding inj_on_def morph_comp_def identity_morphism_def identity_morphism_axioms_def bij_betw_def bijective_morphism_def bijective_morphism_axioms_def
-        apply clarsimp
-        
-        try0
-        sledgehammer
-      moreover have \<open>surj\<close>
-      unfolding bij_betw_def
-      sledgehammer *)
 
 end
