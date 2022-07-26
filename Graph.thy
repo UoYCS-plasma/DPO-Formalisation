@@ -7,16 +7,16 @@ record ('v,'e,'l,'m) pre_graph =
   edges  :: "'e set"
   source :: "'e \<Rightarrow> 'v"
   target :: "'e \<Rightarrow> 'v"
-  label  :: "'v \<Rightarrow> 'l"
-  mark   :: "'e \<Rightarrow> 'm"
+  node_label :: "'v \<Rightarrow> 'l"
+  edge_label :: "'e \<Rightarrow> 'm"
 
 
 notation nodes  ("V\<^bsub>_\<^esub>")
 notation edges  ("E\<^bsub>_\<^esub>")
 notation source ("s\<^bsub>_\<^esub>")
 notation target ("t\<^bsub>_\<^esub>")
-notation label  ("l\<^bsub>_\<^esub>")
-notation mark   ("m\<^bsub>_\<^esub>")
+notation node_label ("l\<^bsub>_\<^esub>")
+notation edge_label ("m\<^bsub>_\<^esub>")
 
 locale graph =
   fixes G :: "('v,'e,'l,'m) pre_graph"

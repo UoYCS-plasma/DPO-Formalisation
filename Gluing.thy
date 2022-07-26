@@ -30,7 +30,7 @@ fun m where
 | "m (Inr v) = m\<^bsub>R\<^esub> v"
 
 
-abbreviation H where \<open>H \<equiv> \<lparr>nodes=V,edges=E,source=s,target=t,label=l,mark=m\<rparr>\<close>
+abbreviation H where \<open>H \<equiv> \<lparr>nodes=V,edges=E,source=s,target=t,node_label=l,edge_label=m\<rparr>\<close>
 
 interpretation h: graph H
 proof
