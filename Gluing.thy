@@ -4,22 +4,22 @@ begin
 
 locale gluing =
   d: injective_morphism K D d +
-  r: injective_morphism K R r 
-  for K D R d r
+  r: injective_morphism K R b
+  for K D R d b
 begin
 
-abbreviation V where \<open>V \<equiv> Inl ` V\<^bsub>D\<^esub> \<union> Inr ` (V\<^bsub>R\<^esub> - \<^bsub>r\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>)\<close>
-abbreviation E where \<open>E \<equiv> Inl ` E\<^bsub>D\<^esub> \<union> Inr ` (E\<^bsub>R\<^esub> - \<^bsub>r\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>)\<close>
+abbreviation V where \<open>V \<equiv> Inl ` V\<^bsub>D\<^esub> \<union> Inr ` (V\<^bsub>R\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>)\<close>
+abbreviation E where \<open>E \<equiv> Inl ` E\<^bsub>D\<^esub> \<union> Inr ` (E\<^bsub>R\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>)\<close>
 
 fun s where
  "s (Inl e) = Inl (s\<^bsub>D\<^esub> e)"
-|"s (Inr e) = (if e \<in> (E\<^bsub>R\<^esub> - \<^bsub>r\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>) \<and> (s\<^bsub>R\<^esub> e \<in> \<^bsub>r\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>) 
-  then Inl (\<^bsub>d\<^esub>\<^sub>V ((inv_into V\<^bsub>K\<^esub> \<^bsub>r\<^esub>\<^sub>V) (s\<^bsub>R\<^esub> e))) else Inr (s\<^bsub>R\<^esub> e))"
+|"s (Inr e) = (if e \<in> (E\<^bsub>R\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>) \<and> (s\<^bsub>R\<^esub> e \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>) 
+  then Inl (\<^bsub>d\<^esub>\<^sub>V ((inv_into V\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>V) (s\<^bsub>R\<^esub> e))) else Inr (s\<^bsub>R\<^esub> e))"
 
 fun t where
  "t (Inl e) = Inl (t\<^bsub>D\<^esub> e)"
-|"t (Inr e) = (if e \<in> (E\<^bsub>R\<^esub> - \<^bsub>r\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>) \<and> (t\<^bsub>R\<^esub> e \<in> \<^bsub>r\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>) 
-  then Inl (\<^bsub>d\<^esub>\<^sub>V ((inv_into V\<^bsub>K\<^esub> \<^bsub>r\<^esub>\<^sub>V) (t\<^bsub>R\<^esub> e))) else Inr (t\<^bsub>R\<^esub> e))"
+|"t (Inr e) = (if e \<in> (E\<^bsub>R\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>) \<and> (t\<^bsub>R\<^esub> e \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>) 
+  then Inl (\<^bsub>d\<^esub>\<^sub>V ((inv_into V\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>V) (t\<^bsub>R\<^esub> e))) else Inr (t\<^bsub>R\<^esub> e))"
 
 fun l where
   "l (Inl v) = l\<^bsub>D\<^esub> v"
@@ -68,8 +68,8 @@ next
 qed
 
 abbreviation h where 
-\<open>h \<equiv> \<lparr>node_map = \<lambda>v. if v \<in> V\<^bsub>R\<^esub> - \<^bsub>r\<^esub>\<^sub>V ` V\<^bsub>K\<^esub> then Inr v else Inl (\<^bsub>d\<^esub>\<^sub>V ((inv_into V\<^bsub>K\<^esub> \<^bsub>r\<^esub>\<^sub>V) v)),
-      edge_map = \<lambda>e. if e \<in> E\<^bsub>R\<^esub> - \<^bsub>r\<^esub>\<^sub>E ` E\<^bsub>K\<^esub> then Inr e else Inl (\<^bsub>d\<^esub>\<^sub>E ((inv_into E\<^bsub>K\<^esub> \<^bsub>r\<^esub>\<^sub>E) e))\<rparr>\<close>
+\<open>h \<equiv> \<lparr>node_map = \<lambda>v. if v \<in> V\<^bsub>R\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub> then Inr v else Inl (\<^bsub>d\<^esub>\<^sub>V ((inv_into V\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>V) v)),
+      edge_map = \<lambda>e. if e \<in> E\<^bsub>R\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub> then Inr e else Inl (\<^bsub>d\<^esub>\<^sub>E ((inv_into E\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>E) e))\<rparr>\<close>
 
 interpretation inc_h: injective_morphism R H h
 proof
@@ -80,7 +80,7 @@ next
     using d.morph_node_range r.inj_nodes that by auto
 next
   show \<open>\<^bsub>h\<^esub>\<^sub>V (s\<^bsub>R\<^esub> e) = s\<^bsub>H\<^esub> (\<^bsub>h\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>R\<^esub>\<close> for e
-  proof (cases \<open>(s\<^bsub>R\<^esub> e) \<in> \<^bsub>r\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>)
+  proof (cases \<open>(s\<^bsub>R\<^esub> e) \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>)
     case True
     then show ?thesis
       apply (auto simp: d.G.source_integrity d.source_preserve r.source_preserve that)
@@ -93,7 +93,7 @@ next
   qed
 next
   show \<open>\<^bsub>h\<^esub>\<^sub>V (t\<^bsub>R\<^esub> e) = t\<^bsub>H\<^esub> (\<^bsub>h\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>R\<^esub>\<close> for e
-  proof (cases \<open>e \<in> E\<^bsub>R\<^esub> - \<^bsub>r\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close>)
+  proof (cases \<open>e \<in> E\<^bsub>R\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close>)
     case True
     then show ?thesis 
       by (simp add: graph.target_integrity r.H.graph_axioms)
@@ -151,13 +151,13 @@ qed
 
 
 
-interpretation pushout_diagram K R D H r d h c
+interpretation pushout_diagram K R D H b d h c
 proof
-  show \<open>\<^bsub>h \<circ>\<^sub>\<rightarrow> r\<^esub>\<^sub>V v = \<^bsub>c \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>K\<^esub>\<close> for v
+  show \<open>\<^bsub>h \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>c \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>K\<^esub>\<close> for v
     using r.inj_nodes that 
     by (simp add: morph_comp_def)
 next
-  show \<open>\<^bsub>h \<circ>\<^sub>\<rightarrow> r\<^esub>\<^sub>E e = \<^bsub>c \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>K\<^esub>\<close> for e
+  show \<open>\<^bsub>h \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>c \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>K\<^esub>\<close> for e
     using r.inj_edges that 
     by (simp add: morph_comp_def)
 next
@@ -167,7 +167,7 @@ next
                    (\<forall>e\<in>E\<^bsub>R\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e))
             H \<close> if
     \<open>graph D'\<close> \<open>morphism R D' x\<close> \<open>morphism D D' y\<close> 
-    \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> r\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> r\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>E e\<close> 
+    \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>E e\<close> 
   for D' x y
   proof -
     define u where \<open>u \<equiv> \<lparr>node_map = case_sum \<^bsub>y\<^esub>\<^sub>V \<^bsub>x\<^esub>\<^sub>V, edge_map = case_sum \<^bsub>y\<^esub>\<^sub>E \<^bsub>x\<^esub>\<^sub>E\<rparr>\<close>
@@ -227,14 +227,14 @@ next
               using that
               by (auto simp add: u_def Inl)
           next
-            case (Inr b)
+            case (Inr ba)
   
-            have \<open>\<^bsub>y\<^esub>\<^sub>V (\<^bsub>d\<^esub>\<^sub>V (inv_into V\<^bsub>K\<^esub> \<^bsub>r\<^esub>\<^sub>V (s\<^bsub>R\<^esub> b))) = s\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E b)\<close>
-              if \<open>b \<in> E\<^bsub>R\<^esub>\<close> and \<open>b \<notin> \<^bsub>r\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close> and \<open>s\<^bsub>R\<^esub> b \<in> \<^bsub>r\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>
-              using that \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> r\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>  morphism.source_preserve[OF \<open>morphism R D' x\<close>] r.inj_nodes
+            have \<open>\<^bsub>y\<^esub>\<^sub>V (\<^bsub>d\<^esub>\<^sub>V (inv_into V\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>V (s\<^bsub>R\<^esub> ba))) = s\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close>
+              if \<open>ba \<in> E\<^bsub>R\<^esub>\<close> and \<open>ba \<notin> \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close> and \<open>s\<^bsub>R\<^esub> ba \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>
+              using that \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>  morphism.source_preserve[OF \<open>morphism R D' x\<close>] r.inj_nodes
               by (fastforce simp add: morph_comp_def)
               
-            moreover have \<open>\<^bsub>x\<^esub>\<^sub>V (s\<^bsub>R\<^esub> b) = s\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E b)\<close> if \<open>b \<in> E\<^bsub>R\<^esub>\<close>          
+            moreover have \<open>\<^bsub>x\<^esub>\<^sub>V (s\<^bsub>R\<^esub> ba) = s\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close> if \<open>ba \<in> E\<^bsub>R\<^esub>\<close>          
               by (simp add: that \<open>morphism R D' x\<close> morphism.source_preserve)
   
             ultimately show ?thesis 
@@ -252,14 +252,14 @@ next
               using that
               by (auto simp add: u_def Inl)
           next
-            case (Inr b)
+            case (Inr ba)
   
-            have \<open>\<^bsub>y\<^esub>\<^sub>V (\<^bsub>d\<^esub>\<^sub>V (inv_into V\<^bsub>K\<^esub> \<^bsub>r\<^esub>\<^sub>V (t\<^bsub>R\<^esub> b))) = t\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E b)\<close>
-              if \<open>b \<in> E\<^bsub>R\<^esub>\<close> and \<open>b \<notin> \<^bsub>r\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close> and \<open>t\<^bsub>R\<^esub> b \<in> \<^bsub>r\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>
-              using that \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> r\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>  morphism.target_preserve[OF \<open>morphism R D' x\<close>] r.inj_nodes
+            have \<open>\<^bsub>y\<^esub>\<^sub>V (\<^bsub>d\<^esub>\<^sub>V (inv_into V\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>V (t\<^bsub>R\<^esub> ba))) = t\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close>
+              if \<open>ba \<in> E\<^bsub>R\<^esub>\<close> and \<open>ba \<notin> \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close> and \<open>t\<^bsub>R\<^esub> ba \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>
+              using that \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>  morphism.target_preserve[OF \<open>morphism R D' x\<close>] r.inj_nodes
               by (fastforce simp add: morph_comp_def)
               
-            moreover have \<open>\<^bsub>x\<^esub>\<^sub>V (t\<^bsub>R\<^esub> b) = t\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E b)\<close> if \<open>b \<in> E\<^bsub>R\<^esub>\<close>          
+            moreover have \<open>\<^bsub>x\<^esub>\<^sub>V (t\<^bsub>R\<^esub> ba) = t\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close> if \<open>ba \<in> E\<^bsub>R\<^esub>\<close>          
               by (simp add: that \<open>morphism R D' x\<close> morphism.target_preserve)
   
             ultimately show ?thesis 
