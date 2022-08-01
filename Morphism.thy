@@ -36,13 +36,9 @@ lemma wf_morph_comp:
     g: \<open>morphism H K g\<close>
   shows \<open>morphism G K (g \<circ>\<^sub>\<rightarrow> f)\<close>
 proof (intro_locales)
-  show \<open>graph G\<close>
-    using f
-    by (simp add: morphism_def)
+  show \<open>graph G\<close> by (fact morphism.axioms[OF f])
 next
-  show \<open>graph K\<close>
-    using g
-    by (simp add: morphism_def)
+  show \<open>graph K\<close> by (fact morphism.axioms[OF g])
 next
   show \<open>morphism_axioms G K (g \<circ>\<^sub>\<rightarrow> f)\<close> 
   proof
