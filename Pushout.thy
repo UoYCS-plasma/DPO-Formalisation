@@ -57,7 +57,7 @@ lemma universal_property_exist:
 
 
 
-lemma
+theorem uniqueness_po:
   fixes D' :: \<open>('g, 'h, 'k, 'l) pre_graph\<close>
   assumes 
     D': \<open>graph D'\<close> and 
