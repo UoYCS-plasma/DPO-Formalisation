@@ -7,6 +7,7 @@ session "DPO-Formal" = HOL +
     Pushout
     Gluing
     Deletion
+    DirectDerivation
 
   document_files
     "root.tex"
