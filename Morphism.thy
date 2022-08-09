@@ -352,6 +352,23 @@ assumes
 
 abbreviation idM where \<open>idM \<equiv> \<lparr>node_map = id, edge_map = id\<rparr>\<close>
 
+locale inclusion_morphism =
+  bijective_morphism G H idM for G H
+begin
+
+lemma nodes_g_in_h[iff]:
+  \<open>x \<in> V\<^bsub>G\<^esub> \<longleftrightarrow> x \<in> V\<^bsub>H\<^esub>\<close>
+  using bij_betw_imp_surj_on bij_nodes 
+  by fastforce
+
+lemma edges_g_in_h[iff]:
+  \<open>x \<in> E\<^bsub>G\<^esub> \<longleftrightarrow> x \<in> E\<^bsub>H\<^esub>\<close>
+  using bij_betw_imp_surj_on bij_edges
+  by fastforce
+
+end
+
+
 
 context graph begin
 interpretation idm: identity_morphism G idM
