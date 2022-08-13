@@ -146,8 +146,7 @@ lemma xxx8':
   shows \<open>inv_into E\<^bsub>L\<^esub> \<^bsub>g\<^esub>\<^sub>E (\<^bsub>g\<^esub>\<^sub>E x) = x\<close>
   by (simp add: assms g.inj_edges)
 
-
-interpretation pushout_diagram K L D G b' d g c'
+sublocale po: pushout_diagram K L D G b' d g c'
 proof
   show \<open>\<^bsub>d\<^esub>\<^sub>V v = \<^bsub>c' \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>K\<^esub>\<close> for v
     by (simp add: morph_comp_def that)

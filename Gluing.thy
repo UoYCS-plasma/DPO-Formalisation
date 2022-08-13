@@ -151,7 +151,7 @@ qed
 
 
 
-interpretation pushout_diagram K R D H b d h c
+sublocale po: pushout_diagram K R D H b d h c
 proof
   show \<open>\<^bsub>h \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>c \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>K\<^esub>\<close> for v
     using r.inj_nodes that 
@@ -318,6 +318,5 @@ next
   qed
 qed
 qed
-
   end
 end
