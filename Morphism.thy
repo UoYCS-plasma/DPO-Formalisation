@@ -12,8 +12,8 @@ notation edge_map ("\<^bsub>_\<^esub>\<^sub>E")
 locale morphism =
   G: graph G +
   H: graph H for
-    G :: "('v\<^sub>1,'e\<^sub>1,'l,'m) pre_graph" and 
-    H :: "('v\<^sub>2,'e\<^sub>2,'l,'m) pre_graph" +
+    G :: "('v\<^sub>1::countable,'e\<^sub>1::countable,'l::countable,'m::countable) pre_graph" and 
+    H :: "('v\<^sub>2::countable,'e\<^sub>2::countable,'l::countable,'m::countable) pre_graph" +
   fixes 
     f :: "('v\<^sub>1,'v\<^sub>2,'e\<^sub>1,'e\<^sub>2) pre_morph"  
   assumes
