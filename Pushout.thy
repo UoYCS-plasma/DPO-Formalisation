@@ -32,7 +32,7 @@ assumes
   node_commutativity: \<open>v \<in> V\<^bsub>A\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close> and
   edge_commutativity: \<open>e \<in> E\<^bsub>A\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>g \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e\<close> and
   universal_property: \<open>\<lbrakk>
-    graph (D' :: ngraph); 
+    graph (D' :: ('c,'d) ngraph); 
     morphism (to_ngraph B) D' x; 
     morphism (to_ngraph C) D' y;
      \<forall>v \<in> V\<^bsub>to_ngraph A\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> (to_nmorph b)\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> (to_nmorph c)\<^esub>\<^sub>V v;
@@ -45,7 +45,7 @@ assumes
             (\<forall>e \<in> E\<^bsub>to_ngraph C\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> (to_nmorph g)\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e))
             (to_ngraph D)\<close>
 begin
-
+ 
 lemma universal_property_exist_gen:
   fixes D'
   assumes \<open>graph D'\<close> \<open>morphism B D' x\<close> \<open>morphism C D' y\<close>
@@ -229,9 +229,6 @@ qed
 qed
 qed
 qed
-
-
-
 
 theorem uniqueness_po:
   fixes D'
@@ -460,7 +457,7 @@ next
          if \<open>graph D''\<close> and \<open>morphism (to_ngraph B) D'' f''\<close> and \<open>morphism (to_ngraph C) D'' g''\<close> 
            and \<open>\<forall>v\<in>V\<^bsub>to_ngraph A\<^esub>. \<^bsub>f'' \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>V v = \<^bsub>g'' \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>V v\<close>
            and \<open>\<forall>e\<in>E\<^bsub>to_ngraph A\<^esub>. \<^bsub>f'' \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>E e = \<^bsub>g'' \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>E e\<close>
-         for D'' :: "(nat, nat, nat, nat) pre_graph" and f'' g''
+         for D'' :: "('c,'d) ngraph" and f'' g''
        proof -
 
          obtain u'' where \<open>morphism (to_ngraph D) D'' u''\<close> and

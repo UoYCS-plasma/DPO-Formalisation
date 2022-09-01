@@ -2,24 +2,24 @@ theory Generics
   imports Graph Morphism "HOL-Library.Countable"
 begin
 
-type_synonym ngraph = "(nat,nat,nat,nat) pre_graph"
+type_synonym ('l,'m) ngraph = "(nat,nat,'l,'m) pre_graph"
 
-definition to_ngraph :: "('v::countable,'e :: countable,'l :: countable,'m :: countable) pre_graph \<Rightarrow> ngraph" where
+definition to_ngraph :: "('v::countable,'e :: countable,'l,'m) pre_graph \<Rightarrow> ('l,'m) ngraph" where
 \<open>to_ngraph G \<equiv> \<lparr>nodes = to_nat ` V\<^bsub>G\<^esub>, edges = to_nat ` E\<^bsub>G\<^esub>
   , source= \<lambda>e. to_nat (s\<^bsub>G\<^esub> (from_nat e)), target = \<lambda>e. to_nat (t\<^bsub>G\<^esub> (from_nat e))
-  , node_label = \<lambda>v. to_nat (l\<^bsub>G\<^esub> (from_nat v)), edge_label = \<lambda>e. to_nat (m\<^bsub>G\<^esub> (from_nat e))\<rparr>\<close>
+  , node_label = \<lambda>v. l\<^bsub>G\<^esub> (from_nat v), edge_label = \<lambda>e. m\<^bsub>G\<^esub> (from_nat e)\<rparr>\<close>
 
-definition from_ngraph :: "ngraph \<Rightarrow> ('v::countable,'e :: countable,'l :: countable,'m :: countable) pre_graph" where
+definition from_ngraph :: " ('l,'m) ngraph \<Rightarrow> ('v::countable,'e :: countable,'l,'m) pre_graph" where
 \<open>from_ngraph G \<equiv> \<lparr>nodes = from_nat ` V\<^bsub>G\<^esub>, edges = from_nat ` E\<^bsub>G\<^esub>
   , source = \<lambda>e. from_nat (s\<^bsub>G\<^esub> (to_nat e)), target = \<lambda>e. from_nat (t\<^bsub>G\<^esub> (to_nat e))
-  , node_label = \<lambda>e. from_nat (l\<^bsub>G\<^esub> (to_nat e)), edge_label = \<lambda>e. from_nat (m\<^bsub>G\<^esub> (to_nat e))\<rparr>\<close>
+  , node_label = \<lambda>e. l\<^bsub>G\<^esub> (to_nat e), edge_label = \<lambda>e. m\<^bsub>G\<^esub> (to_nat e)\<rparr>\<close>
 
 lemma ngraph_to_from[simp]:
   \<open>from_ngraph (to_ngraph G) = G\<close>
   by (simp add: from_ngraph_def to_ngraph_def from_nat_def)
 
 lemma graph_ngraph_corres_iff: 
-  \<open>graph G \<longleftrightarrow> graph (to_ngraph G)\<close>
+  \<open>graph (to_ngraph G) \<longleftrightarrow> graph G \<close>
 proof
   show \<open>graph (to_ngraph G)\<close> if \<open>graph G\<close>
   proof 
@@ -59,6 +59,13 @@ next
       by (fastforce simp add: to_ngraph_def)
   qed
 qed
+(* 
+lemma ngraph_subset_graph_iff:
+  shows \<open>V\<^bsub>G\<^esub> \<subseteq> V\<^bsub>H\<^esub> \<longleftrightarrow> V\<^bsub>to_ngraph G\<^esub> \<subseteq> V\<^bsub>to_ngraph H\<^esub>\<close>
+  sorry *)
+    
+  
+
 
 
 
@@ -158,8 +165,15 @@ next
     qed
   qed
 qed
+(* 
+lemma blaa:
+  \<open>\<^bsub>to_nmorph f\<^esub>\<^sub>V (to_nat x) \<in> V\<^bsub>to_ngraph G\<^esub> \<longleftrightarrow> \<^bsub>f\<^esub>\<^sub>V x \<in> V\<^bsub>G\<^esub>\<close>
+  sorry
 
-
+lemma blaa1:
+  \<open>\<^bsub>to_nmorph f\<^esub>\<^sub>E (to_nat x) \<in> E\<^bsub>to_ngraph G\<^esub> \<longleftrightarrow> \<^bsub>f\<^esub>\<^sub>E x \<in> E\<^bsub>G\<^esub>\<close>
+  sorry
+ *)
 lemma  morph_tong_tong_u_is_morph_tonm:
   assumes \<open>morphism (to_ngraph D) (to_ngraph D') u\<close>
   shows \<open>morphism D D' (from_nmorph u)\<close>
@@ -237,5 +251,13 @@ using that
     unfolding morph_comp_def
     by (auto simp add: to_nmorph_def to_ngraph_def)
 qed
+ 
+definition lift_morph :: "nmorph \<Rightarrow> ('a::countable,nat,'b::countable,nat) pre_morph" where
+"lift_morph f \<equiv> \<lparr>node_map = \<lambda>v. \<^bsub>f\<^esub>\<^sub>V (to_nat v), edge_map = \<lambda>e. \<^bsub>f\<^esub>\<^sub>E (to_nat e)\<rparr>"
+
+
+(* lemma abc:
+  shows \<open>morphism G H f \<longleftrightarrow> morphism (to_ngraph G) (to_ngraph H) (lift_morph (to_nmorph f))\<close>
+  sorry *)
 
 end
