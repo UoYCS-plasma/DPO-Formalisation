@@ -32,7 +32,7 @@ fun m where
 
 abbreviation H where \<open>H \<equiv> \<lparr>nodes=V,edges=E,source=s,target=t,node_label=l,edge_label=m\<rparr>\<close>
 
-interpretation h: graph H
+sublocale h: graph H
 proof
   show \<open>finite V\<^bsub>H\<^esub>\<close>
     by (simp add: d.H.finite_nodes r.H.finite_nodes)
@@ -83,9 +83,10 @@ next
   proof (cases \<open>(s\<^bsub>R\<^esub> e) \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>)
     case True
     then show ?thesis
-      apply (auto simp: d.G.source_integrity d.source_preserve r.source_preserve that)
-      using inv_into_f_f r.inj_nodes r.inj_edges r.source_preserve d.G.source_integrity d.source_preserve
-      by metis
+      using
+        morphism.source_preserve[OF  d.morphism_axioms] graph.source_integrity[OF  d.G.graph_axioms ]r.source_preserve that
+        inv_into_f_f[OF r.inj_edges] inv_into_f_f[OF r.inj_nodes]
+      by auto metis
   next
     case False
     then show ?thesis
@@ -100,9 +101,12 @@ next
   next
     case False
     then show ?thesis 
-      apply simp
-      by (smt (verit, ccfv_threshold) d.G.graph_axioms d.target_preserve graph.target_integrity image_iff inv_into_f_f r.inj_edges r.inj_nodes r.target_preserve that)
-  qed
+      using
+        morphism.target_preserve[OF d.morphism_axioms] graph.target_integrity[OF d.G.graph_axioms]
+        r.target_preserve that
+        inv_into_f_f[OF r.inj_edges] inv_into_f_f[OF r.inj_nodes]
+      by (auto iff: image_iff) metis+
+    qed
 next
   show \<open>l\<^bsub>R\<^esub> v = l\<^bsub>H\<^esub> (\<^bsub>h\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>R\<^esub>\<close> for v
     using d.label_preserve r.inj_nodes r.label_preserve that by force
@@ -119,8 +123,9 @@ next
     by (fastforce simp: inj_on_def)
 qed
 
-abbreviation c where 
+abbreviation c :: "('e, 'e + 'g, 'f, 'f + 'h) pre_morph" where 
 \<open>c \<equiv> \<lparr>node_map = Inl, edge_map = Inl\<rparr>\<close>
+
 
 interpretation inj_c: injective_morphism D H c
 proof
@@ -149,8 +154,6 @@ next
     by simp
 qed
 
-
-
 sublocale po: pushout_diagram K R D H b d h c
 proof
   show \<open>\<^bsub>h \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>c \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>K\<^esub>\<close> for v
@@ -161,162 +164,150 @@ next
     using r.inj_edges that 
     by (simp add: morph_comp_def)
 next
-  show \<open>Ex1M
-            (\<lambda>xa. morphism H D' xa \<and>
-                   (\<forall>v\<in>V\<^bsub>R\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and>
-                   (\<forall>e\<in>E\<^bsub>R\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e))
-            H \<close> if
-    \<open>graph D'\<close> \<open>morphism R D' x\<close> \<open>morphism D D' y\<close> 
-    \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>E e\<close> 
-  for D' x y
+  show \<open> Ex1M
+            (\<lambda>xa. morphism (to_ngraph H) D' xa \<and>
+                   (\<forall>v\<in>V\<^bsub>to_ngraph R\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph h\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and>
+                   (\<forall>e\<in>E\<^bsub>to_ngraph R\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and>
+                   (\<forall>v\<in>V\<^bsub>to_ngraph D\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> 
+                   (\<forall>e\<in>E\<^bsub>to_ngraph D\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e))
+            (to_ngraph H)\<close>
+    if \<open>graph D'\<close> \<open>morphism (to_ngraph R) D' x\<close> \<open>morphism (to_ngraph D) D' y\<close>
+      \<open>\<forall>v\<in>V\<^bsub>to_ngraph K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph d\<^esub>\<^sub>V v\<close> 
+      \<open>\<forall>e\<in>E\<^bsub>to_ngraph K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph d\<^esub>\<^sub>E e\<close> for D' :: "('c,'d) ngraph" and x y
   proof -
-    define u where \<open>u \<equiv> \<lparr>node_map = case_sum \<^bsub>y\<^esub>\<^sub>V \<^bsub>x\<^esub>\<^sub>V, edge_map = case_sum \<^bsub>y\<^esub>\<^sub>E \<^bsub>x\<^esub>\<^sub>E\<rparr>\<close>
+    define u where \<open>u \<equiv> 
+      \<lparr> node_map = \<lambda>v. case_sum (\<^bsub>y\<^esub>\<^sub>V \<circ> to_nat ) (\<^bsub>x\<^esub>\<^sub>V \<circ> to_nat )(from_nat v :: 'e + 'g)
+      , edge_map = \<lambda>e. case_sum (\<^bsub>y\<^esub>\<^sub>E \<circ> to_nat ) (\<^bsub>x\<^esub>\<^sub>E \<circ> to_nat )(from_nat e :: 'f + 'h)\<rparr>\<close>
 
-    show ?thesis
-    proof (rule_tac x = u in exI, rule conjI)
-
-      show \<open>morphism H D' u 
-        \<and> (\<forall>v\<in>V\<^bsub>R\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>R\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) 
-        \<and> (\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e)\<close>
-          proof (intro conjI)
-        show \<open>morphism H D' u\<close>
-        proof
-          show \<open>finite V\<^bsub>D'\<^esub>\<close> and \<open>finite E\<^bsub>D'\<^esub>\<close>
-            using graph.finite_nodes[OF that(1)] graph.finite_edges[OF that(1)]
-            by simp_all
+    interpret u: morphism \<open>to_ngraph H\<close> D' u
+    proof intro_locales
+      show \<open>graph (to_ngraph H)\<close>
+        using graph_ngraph_corres_iff h.graph_axioms by blast
+    next
+      show \<open>graph D'\<close>
+        using that(1) by assumption
+    next
+      show \<open>morphism_axioms (to_ngraph H) D' u\<close>
+      proof
+        show \<open>\<^bsub>u\<^esub>\<^sub>E e \<in> E\<^bsub>D'\<^esub>\<close> if \<open>e \<in> E\<^bsub>to_ngraph H\<^esub>\<close> for e
+        proof (cases \<open>from_nat e :: 'f + 'h\<close>)
+          case (Inl a)
+          then show ?thesis 
+            using that morphism.morph_edge_range[OF \<open>morphism (to_ngraph D) D' y\<close>]
+            by (auto simp add: u_def to_ngraph_def)
         next
-          show \<open>s\<^bsub>D'\<^esub> e \<in> V\<^bsub>D'\<^esub>\<close> if \<open>e \<in> E\<^bsub>D'\<^esub>\<close> for e
-            by (simp add: \<open>graph D'\<close> graph.source_integrity that)
-        next
-          show \<open>t\<^bsub>D'\<^esub> e \<in> V\<^bsub>D'\<^esub>\<close> if \<open>e \<in> E\<^bsub>D'\<^esub>\<close> for e
-            by (simp add: \<open>graph D'\<close> graph.target_integrity that)
-        next
-          show \<open>\<^bsub>u\<^esub>\<^sub>E e \<in> E\<^bsub>D'\<^esub>\<close> if \<open>e \<in> E\<^bsub>H\<^esub>\<close> for e
-          proof (cases e)
-            case (Inl a)
-            then show ?thesis
-              using that morphism.morph_edge_range[OF \<open>morphism D D' y\<close>, of a]
-              by (auto simp add: u_def)
-          next
-            case (Inr b)
-            then show ?thesis 
-              using that morphism.morph_edge_range[OF \<open>morphism R D' x\<close>, of b]
-              by (auto simp add: u_def)
-          qed
-            next
-              show \<open>\<^bsub>u\<^esub>\<^sub>V v \<in> V\<^bsub>D'\<^esub>\<close> if \<open>v \<in> V\<^bsub>H\<^esub>\<close> for v
-              proof (cases v)
-            case (Inl a)
-            then show ?thesis
-              using that morphism.morph_node_range[OF \<open>morphism D D' y\<close>, of a]
-              by (auto simp add: u_def)
-          next
-            case (Inr b)
-            then show ?thesis 
-              using that morphism.morph_node_range[OF \<open>morphism R D' x\<close>, of b]
-              by (auto simp add: u_def)
-          qed
-        next
-          show \<open>\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>H\<^esub> e) = s\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>H\<^esub>\<close> for e
-          proof (cases e)
-            case (Inl a)
-            have \<open>\<^bsub>y\<^esub>\<^sub>V (s\<^bsub>D\<^esub> a) = s\<^bsub>D'\<^esub> (\<^bsub>y\<^esub>\<^sub>E a)\<close> if \<open>a \<in> E\<^bsub>D\<^esub>\<close>
-              by (simp add: \<open>morphism D D' y\<close> morphism.source_preserve that)
-  
-            thus ?thesis      
-              using that
-              by (auto simp add: u_def Inl)
-          next
-            case (Inr ba)
-  
-            have \<open>\<^bsub>y\<^esub>\<^sub>V (\<^bsub>d\<^esub>\<^sub>V (inv_into V\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>V (s\<^bsub>R\<^esub> ba))) = s\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close>
-              if \<open>ba \<in> E\<^bsub>R\<^esub>\<close> and \<open>ba \<notin> \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close> and \<open>s\<^bsub>R\<^esub> ba \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>
-              using that \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>  morphism.source_preserve[OF \<open>morphism R D' x\<close>] r.inj_nodes
-              by (fastforce simp add: morph_comp_def)
-              
-            moreover have \<open>\<^bsub>x\<^esub>\<^sub>V (s\<^bsub>R\<^esub> ba) = s\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close> if \<open>ba \<in> E\<^bsub>R\<^esub>\<close>          
-              by (simp add: that \<open>morphism R D' x\<close> morphism.source_preserve)
-  
-            ultimately show ?thesis 
-              using \<open>e \<in> E\<^bsub>H\<^esub>\<close>
-              by (auto simp add: u_def Inr)
-          qed
-        next
-          show \<open>\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>H\<^esub> e) = t\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>H\<^esub>\<close> for e
-          proof (cases e)
-            case (Inl a)
-            have \<open>\<^bsub>y\<^esub>\<^sub>V (t\<^bsub>D\<^esub> a) = t\<^bsub>D'\<^esub> (\<^bsub>y\<^esub>\<^sub>E a)\<close> if \<open>a \<in> E\<^bsub>D\<^esub>\<close>
-              by (simp add: \<open>morphism D D' y\<close> morphism.target_preserve that)
-  
-            thus ?thesis      
-              using that
-              by (auto simp add: u_def Inl)
-          next
-            case (Inr ba)
-  
-            have \<open>\<^bsub>y\<^esub>\<^sub>V (\<^bsub>d\<^esub>\<^sub>V (inv_into V\<^bsub>K\<^esub> \<^bsub>b\<^esub>\<^sub>V (t\<^bsub>R\<^esub> ba))) = t\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close>
-              if \<open>ba \<in> E\<^bsub>R\<^esub>\<close> and \<open>ba \<notin> \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>K\<^esub>\<close> and \<open>t\<^bsub>R\<^esub> ba \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>K\<^esub>\<close>
-              using that \<open>\<forall>v\<in>V\<^bsub>K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>  morphism.target_preserve[OF \<open>morphism R D' x\<close>] r.inj_nodes
-              by (fastforce simp add: morph_comp_def)
-              
-            moreover have \<open>\<^bsub>x\<^esub>\<^sub>V (t\<^bsub>R\<^esub> ba) = t\<^bsub>D'\<^esub> (\<^bsub>x\<^esub>\<^sub>E ba)\<close> if \<open>ba \<in> E\<^bsub>R\<^esub>\<close>          
-              by (simp add: that \<open>morphism R D' x\<close> morphism.target_preserve)
-  
-            ultimately show ?thesis 
-              using \<open>e \<in> E\<^bsub>H\<^esub>\<close>
-              by (auto simp add: u_def Inr)
-          qed
-        next
-          show \<open>l\<^bsub>H\<^esub> v = l\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>H\<^esub>\<close> for v
-          proof (cases v)
-            case (Inl a)
-            then show ?thesis 
-              using that 
-              by (fastforce simp add: u_def morphism.label_preserve[OF \<open>morphism D D' y\<close>])
-          next
-            case (Inr b)
-            then show ?thesis 
-              using that 
-              by (simp add: u_def image_iff morphism.label_preserve[OF \<open>morphism R D' x\<close>])
-          qed
-        next
-          show \<open>m\<^bsub>H\<^esub> e = m\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>H\<^esub>\<close> for e
-          proof (cases e)
-            case (Inl a)
-            then show ?thesis
-              using that 
-              by (fastforce simp add: u_def morphism.mark_preserve[OF \<open>morphism D D' y\<close>])
-          next
-            case (Inr b)
-            then show ?thesis
-              using that 
-              by (simp add: u_def image_iff morphism.mark_preserve[OF \<open>morphism R D' x\<close>])
-          qed
+          case (Inr b)
+          then show ?thesis
+            using that morphism.morph_edge_range[OF \<open>morphism (to_ngraph R) D' x\<close>]
+            by (auto simp add: u_def to_ngraph_def)
         qed
       next
-        show \<open>\<forall>v\<in>V\<^bsub>R\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v\<close>
-          using that
-          by (force simp add: morph_comp_def u_def r.inj_nodes)
+        show \<open>\<^bsub>u\<^esub>\<^sub>V v \<in> V\<^bsub>D'\<^esub>\<close> if \<open>v \<in> V\<^bsub>to_ngraph H\<^esub>\<close> for v
+        proof (cases \<open>from_nat v :: 'e + 'g\<close>)
+          case (Inl a)
+          then show ?thesis 
+            using that morphism.morph_node_range[OF \<open>morphism (to_ngraph D) D' y\<close>]
+            by (auto simp add: u_def to_ngraph_def)
+        next
+          case (Inr b)
+          then show ?thesis
+            using that morphism.morph_node_range[OF \<open>morphism (to_ngraph R) D' x\<close>]
+            by (auto simp add: u_def to_ngraph_def)
+        qed
       next
-        show \<open>\<forall>e\<in>E\<^bsub>R\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e\<close>
-          using that
-          by (force simp add: morph_comp_def u_def r.inj_edges)
+        show \<open>\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>to_ngraph H\<^esub> e) = s\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>to_ngraph H\<^esub>\<close> for e
+        proof (cases \<open>from_nat e :: 'f + 'h\<close>)
+          case (Inl a)
+          then show ?thesis 
+            using that morphism.source_preserve[OF \<open>morphism (to_ngraph D) D' y\<close>]
+            by (force simp add: u_def to_ngraph_def)
+        next
+          case (Inr ba)      
+          then show ?thesis
+            using 
+              that morphism.source_preserve[OF \<open>morphism (to_ngraph R) D' x\<close>]
+              \<open>\<forall>v\<in>V\<^bsub>to_ngraph K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph d\<^esub>\<^sub>V v\<close> 
+              \<open>\<forall>e\<in>E\<^bsub>to_ngraph K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph d\<^esub>\<^sub>E e\<close> 
+              r.inj_nodes
+            by(force simp add: u_def to_ngraph_def to_nmorph_def morph_comp_def)
+        qed
       next
-        show \<open>\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v\<close>
-          by (simp add: morph_comp_def u_def)
+        show \<open>\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>to_ngraph H\<^esub> e) = t\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>to_ngraph H\<^esub>\<close> for e
+        proof (cases \<open>from_nat e :: 'f + 'h\<close>)
+          case (Inl a)
+          then show ?thesis 
+            using that morphism.target_preserve[OF \<open>morphism (to_ngraph D) D' y\<close>]
+            by (force simp add: u_def to_ngraph_def)
+        next
+          case (Inr ba)      
+          then show ?thesis
+            using 
+              that morphism.target_preserve[OF \<open>morphism (to_ngraph R) D' x\<close>]
+              \<open>\<forall>v\<in>V\<^bsub>to_ngraph K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph d\<^esub>\<^sub>V v\<close> 
+              \<open>\<forall>e\<in>E\<^bsub>to_ngraph K\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph d\<^esub>\<^sub>E e\<close> 
+              r.inj_nodes
+            by(force simp add: u_def to_ngraph_def to_nmorph_def morph_comp_def)
+        qed
       next
-        show \<open>\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e\<close>
-          by (simp add: morph_comp_def u_def)
+        show \<open>l\<^bsub>to_ngraph H\<^esub> v = l\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>to_ngraph H\<^esub>\<close> for v
+        proof (cases \<open>from_nat v :: 'e + 'g\<close>)
+          case (Inl a)
+          then show ?thesis 
+            using that morphism.label_preserve[OF \<open>morphism (to_ngraph D) D' y\<close>]
+            by (force simp add: u_def to_ngraph_def)
+        next
+          case (Inr b)
+          then show ?thesis 
+            using that morphism.label_preserve[OF \<open>morphism (to_ngraph R) D' x\<close>]
+            by (force simp add: u_def to_ngraph_def)
+        qed
+      next
+        show \<open>m\<^bsub>to_ngraph H\<^esub> e = m\<^bsub>D'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>to_ngraph H\<^esub>\<close> for e
+        proof (cases \<open>from_nat e :: 'f + 'h\<close>)
+          case (Inl a)
+          then show ?thesis
+            using that morphism.mark_preserve[OF \<open>morphism (to_ngraph D) D' y\<close>]
+            by (force simp add: u_def to_ngraph_def)
+        next
+          case (Inr b)
+          then show ?thesis
+            using that morphism.mark_preserve[OF \<open>morphism (to_ngraph R) D' x\<close>]
+            by (force simp add: u_def to_ngraph_def)
+        qed
       qed
+    qed
 
-  next
-    show \<open>\<forall>ya. morphism H D' ya 
-        \<and> (\<forall>v\<in>V\<^bsub>R\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>R\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) 
-        \<and> (\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e) 
-        \<longrightarrow> (\<forall>e\<in>E\<^bsub>H\<^esub>. \<^bsub>ya\<^esub>\<^sub>E e = \<^bsub>u\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>H\<^esub>. \<^bsub>ya\<^esub>\<^sub>V v = \<^bsub>u\<^esub>\<^sub>V v)\<close>
-      by (auto simp add: morph_comp_def u_def)
+    show ?thesis
+    proof (rule_tac x = u in exI, intro conjI)
+      show \<open>morphism (to_ngraph H) D' u\<close>
+        using u.morphism_axioms by assumption
+    next
+      show \<open>\<forall>v\<in>V\<^bsub>to_ngraph R\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> to_nmorph h\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v\<close>
+        using that
+        by (force simp add: morph_comp_def u_def r.inj_nodes to_nmorph_def to_ngraph_def)
+    next
+      show \<open>\<forall>e\<in>E\<^bsub>to_ngraph R\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> to_nmorph h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e\<close>
+        using that
+        by (force simp add: morph_comp_def u_def r.inj_edges to_nmorph_def to_ngraph_def)
+    next
+      show \<open>\<forall>v\<in>V\<^bsub>to_ngraph D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> to_nmorph c \<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v\<close>
+          by (auto simp add: u_def to_ngraph_def to_nmorph_def morph_comp_def)
+    next
+      show \<open>\<forall>e\<in>E\<^bsub>to_ngraph D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e\<close>
+        by (auto simp add: u_def to_ngraph_def to_nmorph_def morph_comp_def)
+    next
+      show \<open>\<forall>ya. morphism (to_ngraph H) D' ya \<and>
+       (\<forall>v\<in>V\<^bsub>to_ngraph R\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> to_nmorph h\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and>
+       (\<forall>e\<in>E\<^bsub>to_ngraph R\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> to_nmorph h\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and>
+       (\<forall>v\<in>V\<^bsub>to_ngraph D\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e::nat\<in>E\<^bsub>to_ngraph D\<^esub>. \<^bsub>ya \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e) \<longrightarrow>
+       (\<forall>e\<in>E\<^bsub>to_ngraph H\<^esub>. \<^bsub>ya\<^esub>\<^sub>E e = \<^bsub>u\<^esub>\<^sub>E e) \<and>
+       (\<forall>v\<in>V\<^bsub>to_ngraph H\<^esub>. \<^bsub>ya\<^esub>\<^sub>V v = \<^bsub>u\<^esub>\<^sub>V v)\<close>
+        by (auto simp add: u_def   to_ngraph_def to_nmorph_def morph_comp_def)
+    qed
   qed
 qed
-qed
-  end
+
+end
+
+
 end

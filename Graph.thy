@@ -1,5 +1,5 @@
 theory Graph
-imports Main
+imports Main "HOL-Library.Countable"
 begin
 
 record ('v,'e,'l,'m) pre_graph =
@@ -19,7 +19,7 @@ notation node_label ("l\<^bsub>_\<^esub>")
 notation edge_label ("m\<^bsub>_\<^esub>")
 
 locale graph =
-  fixes G :: "('v,'e,'l,'m) pre_graph"
+  fixes G :: "('v::countable,'e::countable,'l,'m) pre_graph"
   assumes 
     finite_nodes: "finite V\<^bsub>G\<^esub>" and
     finite_edges: "finite E\<^bsub>G\<^esub>" and
