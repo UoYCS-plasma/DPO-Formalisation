@@ -92,6 +92,31 @@ locale injective_morphism = morphism +
     inj_nodes: "inj_on \<^bsub>f\<^esub>\<^sub>V V\<^bsub>G\<^esub>" and
     inj_edges: "inj_on \<^bsub>f\<^esub>\<^sub>E E\<^bsub>G\<^esub>"
 
+lemma inj_comp_fg_g_inj:
+  assumes \<open>morphism G H g\<close> \<open>morphism H K f\<close> \<open>injective_morphism G H (f \<circ>\<^sub>\<rightarrow> g)\<close>
+  shows \<open>injective_morphism G H g\<close>
+proof intro_locales
+  show \<open>graph G\<close>
+    using morphism.axioms(1)[OF assms(1)] by assumption
+next
+  show \<open>graph H\<close>
+    using morphism.axioms(2)[OF assms(1)] by assumption
+next
+  show \<open>morphism_axioms G H g\<close>
+    using morphism.axioms(3)[OF assms(1)] by assumption
+next
+  show \<open>injective_morphism_axioms G g \<close>
+  proof
+    show \<open>inj_on \<^bsub>g\<^esub>\<^sub>V V\<^bsub>G\<^esub>\<close>
+      using injective_morphism.inj_nodes[OF assms(3)]
+      by (auto simp add: inj_on_imageI2 morph_comp_def)
+  next
+    show \<open>inj_on \<^bsub>g\<^esub>\<^sub>E E\<^bsub>G\<^esub>\<close>
+      using injective_morphism.inj_edges[OF assms(3)]
+      by (auto simp add: inj_on_imageI2 morph_comp_def)
+  qed
+qed
+
 locale surjective_morphism = morphism +
   assumes
     surj_nodes: \<open>v \<in> V\<^bsub>H\<^esub> \<Longrightarrow> \<exists>v' \<in> V\<^bsub>G\<^esub>. \<^bsub>f\<^esub>\<^sub>V v' = v\<close> and
