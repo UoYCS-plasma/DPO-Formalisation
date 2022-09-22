@@ -9,7 +9,6 @@ abbreviation Ex1M :: "(('v\<^sub>1,'v\<^sub>2,'e\<^sub>1,'e\<^sub>2) pre_morph \
 lemma ex1m_ex: \<open>Ex1M P G \<Longrightarrow> \<exists>m. P m\<close>
   by fast
 
-
 lemma ex_eq:
   shows "Ex1M P x \<Longrightarrow> P y \<Longrightarrow> P z \<Longrightarrow> (\<forall>v \<in> V\<^bsub>x\<^esub>. \<^bsub>y\<^esub>\<^sub>V v = \<^bsub>z\<^esub>\<^sub>V v) \<and> (\<forall>e \<in> E\<^bsub>x\<^esub>. \<^bsub>y\<^esub>\<^sub>E e = \<^bsub>z\<^esub>\<^sub>E e)"
   by metis
@@ -229,6 +228,168 @@ qed
 qed
 qed
 qed
+
+
+lemma b_inj_imp_g_inj:
+  assumes \<open>injective_morphism A B b\<close>
+  shows \<open>injective_morphism C D g\<close>
+proof -
+  interpret b: injective_morphism A B b
+     using assms by assumption
+
+     define s and t where 
+       \<open>s \<equiv> \<lambda>pe. case pe of
+                    Inl e \<Rightarrow> Inl (s\<^bsub>C\<^esub> e)
+                  | Inr e \<Rightarrow> (if e \<in> (E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<and> (s\<^bsub>B\<^esub> e \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) 
+                    then Inl (\<^bsub>c\<^esub>\<^sub>V ((inv_into V\<^bsub>A\<^esub> \<^bsub>b\<^esub>\<^sub>V) (s\<^bsub>B\<^esub> e))) else Inr (s\<^bsub>B\<^esub> e))\<close> and
+       \<open>t \<equiv> \<lambda>pe. case pe of
+                    Inl e \<Rightarrow> Inl (t\<^bsub>C\<^esub> e)
+                  | Inr e \<Rightarrow> (if e \<in> (E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<and> (t\<^bsub>B\<^esub> e \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) 
+                    then Inl (\<^bsub>c\<^esub>\<^sub>V ((inv_into V\<^bsub>A\<^esub> \<^bsub>b\<^esub>\<^sub>V) (t\<^bsub>B\<^esub> e))) else Inr (t\<^bsub>B\<^esub> e))\<close> 
+
+     define X :: "('g+'e, 'h+'f, 'c, 'd) pre_graph" where 
+       \<open>X \<equiv> \<lparr>nodes = V\<^bsub>C\<^esub> <+> (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)
+            ,edges = E\<^bsub>C\<^esub> <+> (E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>)
+            ,source= s
+            ,target= t
+            ,node_label=case_sum l\<^bsub>C\<^esub> l\<^bsub>B\<^esub>
+            ,edge_label=case_sum m\<^bsub>C\<^esub> m\<^bsub>B\<^esub>\<rparr>\<close>
+
+     interpret X: graph X
+      proof
+       show \<open>finite V\<^bsub>X\<^esub>\<close>
+         by (simp add: X_def b.H.finite_nodes c.H.finite_nodes)
+     next
+       show \<open>finite E\<^bsub>X\<^esub>\<close>
+         by (simp add: X_def b.H.finite_edges c.H.finite_edges)
+     next
+       show \<open>s\<^bsub>X\<^esub> e \<in> V\<^bsub>X\<^esub>\<close> if \<open>e \<in> E\<^bsub>X\<^esub>\<close> for e
+       proof (cases e)
+         case (Inl a)
+         then show ?thesis
+           using that
+           by (auto simp add: X_def InlI c.H.source_integrity s_def)
+       next
+         case (Inr b)
+         then show ?thesis 
+           using that
+           by (auto simp add: X_def s_def b.H.source_integrity b.inj_nodes c.morph_node_range)
+       qed
+     next
+       show \<open>t\<^bsub>X\<^esub> e \<in> V\<^bsub>X\<^esub>\<close> if \<open>e \<in> E\<^bsub>X\<^esub>\<close> for e
+       proof (cases \<open>isl e\<close>)
+         case True
+         then show ?thesis
+           using that
+           by (auto simp add: X_def InlI c.H.target_integrity t_def)
+       next
+         case False
+         then show ?thesis 
+           using that
+           by (auto simp add: X_def t_def b.H.target_integrity b.inj_nodes c.morph_node_range)
+       qed
+     qed
+ 
+     define ix :: "('g, 'g+'e, 'h, 'h+'f) pre_morph"
+       where \<open>ix \<equiv> \<lparr>node_map = Inl, edge_map = Inl\<rparr>\<close>
+
+     interpret ix: injective_morphism C X ix
+       by standard 
+         (auto simp add: 
+           ix_def X_def s_def t_def
+           c.H.finite_nodes b.H.finite_nodes 
+           c.H.finite_edges b.H.finite_edges
+           c.H.source_integrity c.H.target_integrity
+           b.H.source_integrity b.H.target_integrity)
+       
+     define iy :: "('e, 'g+'e, 'f, 'h+'f) pre_morph"
+       where \<open>iy \<equiv> \<lparr>node_map = \<lambda>v. if v \<in> V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub> then Inr v else Inl (\<^bsub>c\<^esub>\<^sub>V ((inv_into V\<^bsub>A\<^esub> \<^bsub>b\<^esub>\<^sub>V) v))
+                   ,edge_map = \<lambda>e. if e \<in> E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub> then Inr e else Inl (\<^bsub>c\<^esub>\<^sub>E ((inv_into E\<^bsub>A\<^esub> \<^bsub>b\<^esub>\<^sub>E) e))\<rparr>\<close>
+
+     interpret iy: morphism B X iy
+     proof
+       show \<open>\<^bsub>iy\<^esub>\<^sub>E e \<in> E\<^bsub>X\<^esub>\<close> if \<open>e \<in> E\<^bsub>B\<^esub>\<close> for e
+         using that        
+         by (auto simp add: iy_def X_def b.inj_edges c.morph_edge_range)
+     next
+       show \<open>\<^bsub>iy\<^esub>\<^sub>V v \<in> V\<^bsub>X\<^esub>\<close> if \<open>v \<in> V\<^bsub>B\<^esub>\<close> for v
+         using that        
+         by (auto simp add: iy_def X_def b.inj_nodes c.morph_node_range)
+     next
+       show \<open>\<^bsub>iy\<^esub>\<^sub>V (s\<^bsub>B\<^esub> e) = s\<^bsub>X\<^esub> (\<^bsub>iy\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>B\<^esub>\<close> for e
+       proof (cases \<open>s\<^bsub>B\<^esub> e \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>\<close>)
+         case True
+         then show ?thesis
+           using that
+           unfolding iy_def X_def s_def
+           apply auto
+           using b.inj_nodes
+           by (metis b.G.graph_axioms b.inj_edges b.source_preserve c.source_preserve graph.source_integrity inv_into_f_eq)
+       next
+         case False
+         then show ?thesis 
+         using that
+           unfolding iy_def X_def s_def
+            apply auto
+           using b.H.source_integrity apply blast
+           using b.G.graph_axioms b.source_preserve graph.source_integrity image_iff apply fastforce
+           using b.H.source_integrity by blast
+       qed
+     next
+       show \<open>\<^bsub>iy\<^esub>\<^sub>V (t\<^bsub>B\<^esub> e) = t\<^bsub>X\<^esub> (\<^bsub>iy\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>B\<^esub>\<close> for e
+       proof (cases \<open>t\<^bsub>B\<^esub> e \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>\<close>)
+         case True
+         then show ?thesis
+           using that
+           unfolding iy_def X_def t_def
+           apply auto
+           using b.inj_nodes
+           by (metis b.G.graph_axioms b.inj_edges b.target_preserve c.target_preserve graph.target_integrity inv_into_f_eq)
+       next
+         case False
+         then show ?thesis 
+         using that
+           unfolding iy_def X_def t_def
+            apply auto
+           using b.H.target_integrity apply blast
+           using b.G.graph_axioms b.target_preserve graph.target_integrity image_iff apply fastforce
+           using b.H.target_integrity by blast
+       qed 
+     next
+       show \<open>l\<^bsub>B\<^esub> v = l\<^bsub>X\<^esub> (\<^bsub>iy\<^esub>\<^sub>V v)\<close> if \<open> v \<in> V\<^bsub>B\<^esub>\<close> for v
+         using that b.inj_nodes b.label_preserve c.label_preserve
+         by (auto simp add: X_def iy_def)
+     next
+       show \<open>m\<^bsub>B\<^esub> e = m\<^bsub>X\<^esub> (\<^bsub>iy\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>B\<^esub>\<close> for e
+         using that b.inj_edges b.mark_preserve c.mark_preserve
+         by (auto simp add: X_def iy_def)
+     qed
+
+     have tr1: \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>iy \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>ix \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close>     
+       by (auto simp add: iy_def ix_def morph_comp_def b.inj_nodes)
+
+     have tr2: \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>iy \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>ix \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e\<close>
+       by (auto simp add: iy_def ix_def morph_comp_def b.inj_edges)
+
+
+     obtain u where \<open>morphism D X u\<close> 
+       and   \<open>(\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>iy\<^esub>\<^sub>V v)\<close> \<open>(\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>iy\<^esub>\<^sub>E e)\<close>
+       and *:\<open>(\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>ix\<^esub>\<^sub>V v)\<close> \<open>(\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>ix\<^esub>\<^sub>E e)\<close>
+       using universal_property_exist_gen[OF X.graph_axioms iy.morphism_axioms ix.morphism_axioms tr1 tr2]
+       by fast
+
+     show ?thesis
+     proof
+       show \<open>inj_on \<^bsub>g\<^esub>\<^sub>V V\<^bsub>C\<^esub>\<close>
+         using * ix.inj_nodes
+         by (auto simp add: morph_comp_def  inj_on_def) metis
+    next
+      show \<open>inj_on \<^bsub>g\<^esub>\<^sub>E E\<^bsub>C\<^esub>\<close>
+         using * ix.inj_edges
+         by (auto simp add: morph_comp_def  inj_on_def) metis
+     qed
+qed        
+
 
 theorem uniqueness_po:
   fixes D'
