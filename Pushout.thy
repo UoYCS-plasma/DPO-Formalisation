@@ -13,6 +13,12 @@ lemma ex_eq:
   shows "Ex1M P x \<Longrightarrow> P y \<Longrightarrow> P z \<Longrightarrow> (\<forall>v \<in> V\<^bsub>x\<^esub>. \<^bsub>y\<^esub>\<^sub>V v = \<^bsub>z\<^esub>\<^sub>V v) \<and> (\<forall>e \<in> E\<^bsub>x\<^esub>. \<^bsub>y\<^esub>\<^sub>E e = \<^bsub>z\<^esub>\<^sub>E e)"
   by metis
 
+lemma contr_eq1m:
+  assumes \<open>Ex1M P G\<close> and \<open>P a\<close> \<open>P b\<close> and \<open>(\<exists>e \<in>E\<^bsub>G\<^esub>. \<^bsub>a\<^esub>\<^sub>E e \<noteq> \<^bsub>b\<^esub>\<^sub>E e) \<or> (\<exists>v \<in>V\<^bsub>G\<^esub>. \<^bsub>a\<^esub>\<^sub>V v \<noteq> \<^bsub>b\<^esub>\<^sub>V v)\<close>
+  shows \<open>False\<close>
+  using assms
+  by metis
+
 lemma uniq_id_morph:
   assumes \<open>graph G\<close>
   shows\<open>Ex1M (identity_morphism G) G\<close>
