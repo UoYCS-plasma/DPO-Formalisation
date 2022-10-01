@@ -396,7 +396,7 @@ end
 
 
 context graph begin
-interpretation idm: identity_morphism G idM
+sublocale idm: identity_morphism G idM
 proof
  show \<open>\<^bsub>idM\<^esub>\<^sub>E e \<in> E\<^bsub>G\<^esub>\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
     by (simp add: that)
