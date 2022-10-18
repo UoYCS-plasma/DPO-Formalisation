@@ -1,5 +1,5 @@
 theory Pushout
-  imports Morphism Generics
+  imports Morphism Generics "HOL-Library.Disjoint_Sets"
 begin
 
 abbreviation Ex1M :: "(('v\<^sub>1,'v\<^sub>2,'e\<^sub>1,'e\<^sub>2) pre_morph \<Rightarrow> bool) \<Rightarrow> ('v\<^sub>1,'e\<^sub>1,'l,'m) pre_graph \<Rightarrow> bool"
@@ -175,7 +175,7 @@ proof -
               using that(5) comp_lift_edge1
               by blast
           qed
-
+                 
           from ex_eq[OF universal_property[OF nD'.graph_axioms nx.morphism_axioms ny.morphism_axioms n e] a aa]
           have \<open>\<forall>e\<in>E\<^bsub>to_ngraph D\<^esub>. \<^bsub>to_nmorph u'\<^esub>\<^sub>E e = \<^bsub>u\<^esub>\<^sub>E e\<close>
             by simp
@@ -1135,63 +1135,40 @@ proof (rule ccontr)
   qed
 qed
 
-
-lemma partition_d:
-  assumes \<open>inj_on \<^bsub>f\<^esub>\<^sub>V V\<^bsub>B\<^esub>\<close> \<open>inj_on \<^bsub>f\<^esub>\<^sub>E E\<^bsub>B\<^esub>\<close>
-  shows
-    \<open>\<^bsub>f\<^esub>\<^sub>V ` (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<inter> \<^bsub>g\<^esub>\<^sub>V ` (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<inter> (\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V) ` V\<^bsub>A\<^esub> = {}\<close>
-    \<open>\<^bsub>f\<^esub>\<^sub>V ` (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<union> \<^bsub>g\<^esub>\<^sub>V ` (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<union> (\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V) ` V\<^bsub>A\<^esub> = V\<^bsub>D\<^esub>\<close> 
-    \<open>\<^bsub>f\<^esub>\<^sub>E ` (E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<inter> \<^bsub>g\<^esub>\<^sub>E ` (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<inter> (\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E) ` E\<^bsub>A\<^esub> = {}\<close>
-    \<open>\<^bsub>f\<^esub>\<^sub>E ` (E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<union> \<^bsub>g\<^esub>\<^sub>E ` (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<union> (\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E) ` E\<^bsub>A\<^esub> = E\<^bsub>D\<^esub>\<close> 
-  using assms
-     apply (auto simp add: morph_comp_def)
-  using b.morph_node_range inj_onD apply fastforce
-
-  using f.morph_node_range apply blast
-
-  using g.morph_node_range apply blast
-
-  using b.morph_node_range f.morph_node_range apply presburger
-  using joint_surjectivity_nodes node_commutativity
-       apply (auto simp add: morph_comp_def)
-       apply fast
-      apply (metis b.morph_edge_range image_iff inj_onD)
-  using f.morph_edge_range apply blast
-  using g.morph_edge_range apply blast
-  using b.morph_edge_range f.morph_edge_range apply blast
-  using joint_surjectivity_edges  edge_commutativity
-  apply (auto simp add: morph_comp_def)
-  by (smt (verit, ccfv_threshold) Diff_iff image_iff)
-
-
+ 
+ 
+ 
 lemma rosen_2_1_3:
   \<open>\<And>v v'. v \<in> V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub> \<Longrightarrow> v' \<in> V\<^bsub>B\<^esub> \<Longrightarrow> \<^bsub>f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v' \<Longrightarrow> v = v'\<close>
   \<open>\<And>e e'. e \<in> E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub> \<Longrightarrow> e' \<in> E\<^bsub>B\<^esub> \<Longrightarrow> \<^bsub>f\<^esub>\<^sub>E e = \<^bsub>f\<^esub>\<^sub>E e' \<Longrightarrow> e = e'\<close>
   sorry
 
-(* lemma   \<open>inj_on \<^bsub>f\<^esub>\<^sub>V (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<longleftrightarrow> (\<forall>v \<in> V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>. \<forall> v' \<in> V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v' \<longrightarrow> v = v')\<close>
-proof
-  show \<open>\<forall>v\<in>V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>. \<forall>v'\<in>V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v' \<longrightarrow> v = v'\<close> if \<open>inj_on \<^bsub>f\<^esub>\<^sub>V (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)\<close>
-    using that
-    apply (auto simp add: inj_on_def)
-    sorry
-next
-  show \<open>inj_on \<^bsub>f\<^esub>\<^sub>V (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<close> if \<open>\<forall>v\<in>V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>. \<forall>v'\<in>V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v' \<longrightarrow> v = v'\<close>
-    using that
-    apply auto
-    by (meson DiffD1 inj_on_def)
-qed
+(*   proof (cases \<open>v' \<in> \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>\<close>)
+    case True
+    then show ?thesis 
+      using that node_commutativity universal_property_exist_gen[OF ]
+      apply (auto simp add: morph_comp_def)
+      sledgehammer
+      sorry
+  next
+    case False
+    then show ?thesis 
+      using that node_commutativity
+      apply (auto simp add: morph_comp_def)
+      sledgehammer
 
-
-lemma rosen_2_1_3n:
-  \<open>inj_on \<^bsub>f\<^esub>\<^sub>V (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)\<close>
-proof (rule ccontr)
-  assume 
-    asm: \<open>\<not> inj_on \<^bsub>f\<^esub>\<^sub>V (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)\<close>
-  show False
-    sorry
-qed
+  qed
  *)
+lemma
+  assumes P:\<open>X = {\<^bsub>f\<^esub>\<^sub>V ` (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>), \<^bsub>g\<^esub>\<^sub>V ` (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>), (\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V) ` V\<^bsub>A\<^esub>}\<close>
+  shows \<open>partition_on V\<^bsub>D\<^esub> X\<close> and \<open>card X = 3\<close>
+  sorry
+
+lemma partition_d1:
+  \<open>p\<^sub>1=\<^bsub>f\<^esub>\<^sub>V ` (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<Longrightarrow> p\<^sub>2=\<^bsub>g\<^esub>\<^sub>V ` (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<Longrightarrow> p\<^sub>3=(\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V) ` V\<^bsub>A\<^esub> \<Longrightarrow> distinct [p\<^sub>1, p\<^sub>2, p3] \<and> partition_on V\<^bsub>D\<^esub> {p1,p2,p3}\<close>
+  \<open>partition_on E\<^bsub>D\<^esub> {\<^bsub>f\<^esub>\<^sub>E ` (E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>), \<^bsub>g\<^esub>\<^sub>E ` (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>), (\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E) ` E\<^bsub>A\<^esub>}\<close>        
+  sorry
+
 
 theorem uniqueness_poc:
   fixes C' :: "('g, 'h, 'c, 'd) pre_graph" 
@@ -1216,10 +1193,15 @@ proof -
   text \<open>
   Comparing the two partitions of G involved in (t), we find that c1(D-dK)=c'1(D'-d'K) 
   \<close>
+
+
   have g_eq_g': 
     \<open>\<^bsub>g\<^esub>\<^sub>V ` (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) = \<^bsub>g'\<^esub>\<^sub>V ` (V\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)\<close>
     \<open>\<^bsub>g\<^esub>\<^sub>E ` (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) = \<^bsub>g'\<^esub>\<^sub>E ` (E\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>)\<close>
     sorry
+(*       abc123[of \<open>V\<^bsub>D\<^esub>\<close> \<open>\<^bsub>f\<^esub>\<^sub>V ` (V\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)\<close> \<open>\<^bsub>g\<^esub>\<^sub>V ` (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)\<close> \<open> \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>\<close> \<open>\<^bsub>g'\<^esub>\<^sub>V ` (V\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>)\<close>]
+      abc123[of \<open>E\<^bsub>D\<^esub>\<close> \<open>\<^bsub>f\<^esub>\<^sub>E ` (E\<^bsub>B\<^esub> - \<^bsub>b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>)\<close> \<open>\<^bsub>g\<^esub>\<^sub>E ` (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>)\<close> \<open> \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>\<close> \<open>\<^bsub>g'\<^esub>\<^sub>E ` (E\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>)\<close>]
+    by simp_all *)
 
   have bij_g:
     \<open>bij_betw \<^bsub>g\<^esub>\<^sub>V (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) (\<^bsub>g\<^esub>\<^sub>V ` (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>))\<close>
@@ -1265,21 +1247,20 @@ proof -
       apply (auto simp add: morph_comp_def)
       by (smt (verit) \<open>\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V x = \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V x'\<close> c.morph_node_range comp_def g.inj_nodes inv_into_f_f morph_comp_def node_commutativity pre_morph.select_convs(1))
   qed
+
   have cide: \<open>\<^bsub>c'\<^esub>\<^sub>E x = \<^bsub>c'\<^esub>\<^sub>E x'\<close> if \<open>x \<in> E\<^bsub>A\<^esub>\<close> and \<open>x' \<in> E\<^bsub>A\<^esub>\<close> and \<open>\<^bsub>c\<^esub>\<^sub>E x = \<^bsub>c\<^esub>\<^sub>E x'\<close> for x x'
-    sorry
+    using that
+    by (smt (verit, ccfv_threshold) edge_commutativity g'.inj_edges inv_into_f_eq morph_comp_def o_apply p p.c.morph_edge_range pre_morph.simps(2) pushout_diagram.edge_commutativity)
+
   have cide1: \<open>\<^bsub>c\<^esub>\<^sub>E x = \<^bsub>c\<^esub>\<^sub>E x'\<close> if \<open>x \<in> E\<^bsub>A\<^esub>\<close> and \<open>x' \<in> E\<^bsub>A\<^esub>\<close> and \<open>\<^bsub>c'\<^esub>\<^sub>E x = \<^bsub>c'\<^esub>\<^sub>E x'\<close> for x x'
-    sorry
+    using that
+    by (smt (verit, ccfv_SIG) c.morph_edge_range edge_commutativity g.inj_edges inv_into_f_eq morph_comp_def o_apply p pre_morph.select_convs(2) pushout_diagram.edge_commutativity)
 
   define u :: "('g, 'g, 'h, 'h) pre_morph"
     where \<open>u \<equiv> \<lparr>node_map = \<lambda>v. if v \<in> \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub> then \<^bsub>c'\<^esub>\<^sub>V (inv_into V\<^bsub>A\<^esub> \<^bsub>c\<^esub>\<^sub>V v) else inv_into (V\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>g\<^esub>\<^sub>V v)
                ,edge_map = \<lambda>e. if e \<in> \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub> then \<^bsub>c'\<^esub>\<^sub>E (inv_into E\<^bsub>A\<^esub> \<^bsub>c\<^esub>\<^sub>E e) else inv_into (E\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<^bsub>g'\<^esub>\<^sub>E (\<^bsub>g\<^esub>\<^sub>E e)\<rparr>\<close>
 
-(*   have u: \<open>\<^bsub>c'\<^esub>\<^sub>V x = \<^bsub>u \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V x\<close> if \<open>x \<in> V\<^bsub>A\<^esub>\<close> for x
-    using that node_commutativity p.node_commutativity
-    apply (auto simp add: u_def morph_comp_def)
-    sledgehammer
- *)
-  interpret u: bijective_morphism C C' u
+  interpret u: morphism C C' u
   proof 
     show ran_v:\<open>\<^bsub>u\<^esub>\<^sub>V v \<in> V\<^bsub>C'\<^esub>\<close> if \<open>v \<in> V\<^bsub>C\<^esub>\<close> for v
     proof (cases \<open>v \<in> \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>\<close>)
@@ -1293,7 +1274,7 @@ proof -
         using that 
         by (simp add: u_def) (metis Diff_iff g_eq_g'(1) imageI inv_into_into)
     qed
-
+  (* next *)
     show ran_e:\<open>\<^bsub>u\<^esub>\<^sub>E e \<in> E\<^bsub>C'\<^esub>\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
     proof (cases \<open>e \<in> \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>\<close>)
       case True
@@ -1306,7 +1287,7 @@ proof -
         using that
         by (simp add: u_def) (metis Diff_iff g_eq_g'(2) imageI inv_into_into)
     qed
-
+  (* next *)
     show \<open>\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>C\<^esub> e) = s\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
     proof -
       have a: \<open>\<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>C\<^esub> e))\<close>
@@ -1330,14 +1311,13 @@ proof -
         also have x:\<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> e)\<close>
           by (simp add: \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> c.source_preserve)
         also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>C\<^esub> e))\<close>
-      using True
+          using True
           apply (auto simp add: u_def)
-          apply (smt (verit, best) \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close> \<open>\<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> (\<^bsub>c'\<^esub>\<^sub>E x))\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.graph_axioms c.morphism_axioms calculation cid f_inv_into_f graph.source_integrity image_iff inv_into_into morphism.source_preserve p.c.morphism_axioms)
-      using b.G.source_integrity c.source_preserve image_iff by fastforce
+           apply (smt (verit, best) \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close> \<open>\<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> (\<^bsub>c'\<^esub>\<^sub>E x))\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.graph_axioms c.morphism_axioms calculation cid f_inv_into_f graph.source_integrity image_iff inv_into_into morphism.source_preserve p.c.morphism_axioms)
+          using b.G.source_integrity c.source_preserve image_iff by fastforce
 
-    finally show ?thesis 
-      by simp
-
+        finally show ?thesis 
+          by simp
       next
         case False
         have \<open>\<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> (inv_into (E\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<^bsub>g'\<^esub>\<^sub>E (\<^bsub>g\<^esub>\<^sub>E e)))\<close>
@@ -1348,8 +1328,8 @@ proof -
         also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>C\<^esub> e))\<close>
           using False that
           apply (auto simp add: u_def)
-          prefer 2
-          apply (metis DiffI c.H.source_integrity f_inv_into_f g_eq_g'(1) imageI)
+           prefer 2
+           apply (metis DiffI c.H.source_integrity f_inv_into_f g_eq_g'(1) imageI)
           using node_commutativity p.node_commutativity
           using False 
           apply (auto simp add: u_def morph_comp_def)
@@ -1365,61 +1345,286 @@ proof -
       thus ?thesis
         by simp
     qed
-        next
-          show \<open>\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e) = t\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
-            sorry
-        next
-          show \<open>l\<^bsub>C\<^esub> v = l\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>C\<^esub>\<close> for v
-            apply (auto simp add: u_def)
-             apply (metis c.label_preserve f_inv_into_f imageI inv_into_into p.c.label_preserve)
-            by (smt (verit, ccfv_SIG) Diff_iff f_inv_into_f g.label_preserve g_eq_g'(1) imageI inv_into_into p.g.label_preserve that)
-
-        next
-          show \<open>m\<^bsub>C\<^esub> e = m\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
-            sorry
-        next
-          show \<open>bij_betw \<^bsub>u\<^esub>\<^sub>V V\<^bsub>C\<^esub> V\<^bsub>C'\<^esub>\<close>
-            thm comp_id_bij
-            sorry       
-        next
-          show \<open>bij_betw \<^bsub>u\<^esub>\<^sub>E E\<^bsub>C\<^esub> E\<^bsub>C'\<^esub>\<close>
-          proof -
-            have \<open>inj_on \<^bsub>u\<^esub>\<^sub>E E\<^bsub>C\<^esub>\<close>
-              apply (auto simp add: u_def inj_on_def)
-                 prefer 2
-                 apply (metis (no_types, lifting) Diff_iff g_eq_g'(2) image_eqI inv_into_into)
-                prefer 2
-                apply (metis (no_types, lifting) Diff_iff g_eq_g'(2) image_eqI inv_into_into)
-               prefer 2
-               apply (metis (mono_tags, lifting) Diff_iff g.inj_edges g_eq_g'(2) image_eqI inj_onD inv_into_injective)
-              using edge_commutativity p.edge_commutativity
-              apply (auto simp add: morph_comp_def)
-              by (smt (verit, best) f_inv_into_f g.inj_edges imageI inv_into_f_f inv_into_into)
-
-            moreover have \<open>\<^bsub>u\<^esub>\<^sub>E ` E\<^bsub>C\<^esub> = E\<^bsub>C'\<^esub>\<close>
-              apply (auto simp add: u_def)
-
-                apply (simp add: inv_into_into p.c.morph_edge_range)
-
-               apply (smt (verit, best) DiffE DiffI g'.inj_edges g_eq_g'(2) imageE imageI inj_on_diff inv_into_f_eq)
-              using edge_commutativity p.edge_commutativity
-              apply (auto simp add: morph_comp_def)
-
-              sledgehammer
-              using xxx1 xxx xxx2 xxx3
-              apply (auto simp add: inj_on_def)
-
-              sorry
-
-            ultimately show ?thesis
-              by (simp add: bij_betw_def)
-          qed
-        qed
-
-        show ?thesis
-          using u.bijective_morphism_axioms 
+  (* next *)
+    show \<open>\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e) = t\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
+    proof -
+      have a: \<open>\<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e))\<close>
+      proof (cases \<open>e \<in> \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>\<close>)
+        case True
+        obtain x where \<open>x \<in> E\<^bsub>A\<^esub>\<close> and \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close>
+          using True 
           by blast
+
+        have \<open>\<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> (\<^bsub>c'\<^esub>\<^sub>E x))\<close>
+          using True
+          apply (auto simp add: u_def)
+          by (metis (no_types, opaque_lifting) \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> cide f_inv_into_f imageI inv_into_into)
+        also have \<open>\<dots> = \<^bsub>f\<^esub>\<^sub>V (\<^bsub>b\<^esub>\<^sub>V (t\<^bsub>A\<^esub> x))\<close>
+          using node_commutativity p.node_commutativity
+          using True \<open>x \<in> E\<^bsub>A\<^esub>\<close> \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close>
+          apply (auto simp add: u_def morph_comp_def)
+          by (smt (verit, ccfv_SIG) b.G.target_integrity cide f_inv_into_f imageI inv_into_into p.c.target_preserve)
+        also have \<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (\<^bsub>c\<^esub>\<^sub>V (t\<^bsub>A\<^esub> x))\<close>
+          by (metis \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.target_integrity morph_comp_def node_commutativity o_apply pre_morph.select_convs(1))
+        also have x:\<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e)\<close>
+          by (simp add: \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> c.target_preserve)
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e))\<close>
+          using True
+          apply (auto simp add: u_def)
+           apply (smt (verit, best) \<open>\<^bsub>c\<^esub>\<^sub>E x = e\<close> \<open>\<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> (\<^bsub>c'\<^esub>\<^sub>E x))\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.graph_axioms c.morphism_axioms calculation cid f_inv_into_f graph.target_integrity image_iff inv_into_into morphism.target_preserve p.c.morphism_axioms)
+          using b.G.target_integrity c.target_preserve image_iff by fastforce
+
+        finally show ?thesis 
+          by simp
+      next
+        case False
+        have \<open>\<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)) = \<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> (inv_into (E\<^bsub>C'\<^esub> - \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<^bsub>g'\<^esub>\<^sub>E (\<^bsub>g\<^esub>\<^sub>E e)))\<close>
+          using False that
+          by (auto simp add: u_def)
+        also have \<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e)\<close>
+          by (metis (no_types, opaque_lifting) DiffE DiffI False f_inv_into_f g.target_preserve g_eq_g'(2) imageI inv_into_into p.g.target_preserve that)
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e))\<close>
+          using False that
+          apply (auto simp add: u_def)
+           prefer 2
+           apply (metis DiffI c.H.target_integrity f_inv_into_f g_eq_g'(1) imageI)
+          using node_commutativity p.node_commutativity
+          using False 
+          apply (auto simp add: u_def morph_comp_def)
+          by (metis (no_types, opaque_lifting) f_inv_into_f imageI inv_into_into)
+        finally show ?thesis .
       qed
+
+      then have \<open>t\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e) = \<^bsub>u\<^esub>\<^sub>V (t\<^bsub>C\<^esub> e)\<close>
+        using g'.inj_nodes that
+        by (simp add: c.H.target_integrity inj_on_def p.c.H.target_integrity ran_e ran_v)
+
+      thus ?thesis
+        by simp
+    qed
+  next
+    show \<open>l\<^bsub>C\<^esub> v = l\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>C\<^esub>\<close> for v
+      apply (auto simp add: u_def)
+       apply (metis c.label_preserve f_inv_into_f imageI inv_into_into p.c.label_preserve)
+      by (smt (verit, ccfv_SIG) Diff_iff f_inv_into_f g.label_preserve g_eq_g'(1) imageI inv_into_into p.g.label_preserve that)
+
+  next
+    show \<open>m\<^bsub>C\<^esub> e = m\<^bsub>C'\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
+      apply (auto simp add: u_def)
+       apply (metis c.mark_preserve f_inv_into_f imageI inv_into_into p.c.mark_preserve)
+      by (smt (verit, del_insts) DiffE DiffI f_inv_into_f g.mark_preserve g_eq_g'(2) imageI inv_into_into p.g.mark_preserve that)
+  qed
+
+  define u' :: "('g, 'g, 'h, 'h) pre_morph"
+    where \<open>u' \<equiv> \<lparr>node_map = \<lambda>v. if v \<in> \<^bsub>c'\<^esub>\<^sub>V ` V\<^bsub>A\<^esub> then \<^bsub>c\<^esub>\<^sub>V (inv_into V\<^bsub>A\<^esub> \<^bsub>c'\<^esub>\<^sub>V v) else inv_into (V\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>) \<^bsub>g\<^esub>\<^sub>V (\<^bsub>g'\<^esub>\<^sub>V v)
+               ,edge_map = \<lambda>e. if e \<in> \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub> then \<^bsub>c\<^esub>\<^sub>E (inv_into E\<^bsub>A\<^esub> \<^bsub>c'\<^esub>\<^sub>E e) else inv_into (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<^bsub>g\<^esub>\<^sub>E (\<^bsub>g'\<^esub>\<^sub>E e)\<rparr>\<close>
+
+  interpret u': morphism C' C u'
+  proof
+    show ran_v: \<open>\<^bsub>u'\<^esub>\<^sub>E e \<in> E\<^bsub>C\<^esub>\<close> if \<open>e \<in> E\<^bsub>C'\<^esub>\<close> for e
+    proof (cases \<open>e \<in> \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>\<close>)
+      case True
+      then show ?thesis
+        using that
+        by (simp add: u'_def c.morph_edge_range inv_into_into)
+    next
+      case False
+      then show ?thesis
+        using that 
+        by (simp add: u'_def) (metis Diff_iff g_eq_g'(2) imageI inv_into_into)
+    qed
+  (* next *)
+    show ran_e: \<open>\<^bsub>u'\<^esub>\<^sub>V v \<in> V\<^bsub>C\<^esub>\<close> if \<open>v \<in> V\<^bsub>C'\<^esub>\<close> for v
+    proof (cases \<open>v \<in> \<^bsub>c'\<^esub>\<^sub>V ` V\<^bsub>A\<^esub>\<close>)
+      case True
+      then show ?thesis
+        using that
+        by (simp add: u'_def inv_into_into c.morph_node_range)
+    next
+      case False
+      then show ?thesis
+        using that 
+        by (simp add: u'_def) (metis Diff_iff g_eq_g'(1) imageI inv_into_into)
+    qed
+  (* next *)
+    show \<open>\<^bsub>u'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> e) = s\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C'\<^esub>\<close> for e
+    proof -
+      have a: \<open>\<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (\<^bsub>u'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> e))\<close>
+      proof (cases \<open>e \<in> \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>\<close>)
+        case True
+
+        obtain x where \<open>x \<in> E\<^bsub>A\<^esub>\<close> and \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close>
+          using True 
+          by blast
+
+        have \<open>\<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> (\<^bsub>c\<^esub>\<^sub>E x))\<close>
+          using True \<open>x \<in> E\<^bsub>A\<^esub>\<close> and \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close>
+          apply (auto simp add: u'_def)
+          using  \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> cide f_inv_into_f imageI inv_into_into
+          by (metis (no_types, opaque_lifting) cide1)
+        also have \<open>\<dots> =  \<^bsub>f\<^esub>\<^sub>V (\<^bsub>b\<^esub>\<^sub>V (s\<^bsub>A\<^esub> x))\<close>
+          using node_commutativity p.node_commutativity
+          using True \<open>x \<in> E\<^bsub>A\<^esub>\<close> \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close>
+          apply (auto simp add: u_def morph_comp_def)
+          using b.G.source_integrity c.source_preserve by fastforce
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>c'\<^esub>\<^sub>V (s\<^bsub>A\<^esub> x))\<close>
+          by (metis \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.graph_axioms graph.source_integrity morph_comp_def o_apply p.node_commutativity pre_morph.select_convs(1))
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> e)\<close>
+          by (simp add: \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> p.c.source_preserve)
+        also have \<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (\<^bsub>u'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> e))\<close>
+          using True
+          apply (auto simp add: u'_def)
+
+          using \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close> \<open>\<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> (\<^bsub>c\<^esub>\<^sub>E x))\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.graph_axioms c.morphism_axioms calculation f_inv_into_f graph.source_integrity image_iff inv_into_into morphism.source_preserve c.morphism_axioms
+          apply (smt (verit, best) cid1 p.c.source_preserve)
+          using b.G.source_integrity image_iff p.c.source_preserve by fastforce
+
+        finally show ?thesis .
+      next
+        case False
+        have \<open>\<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> (inv_into (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<^bsub>g\<^esub>\<^sub>E (\<^bsub>g'\<^esub>\<^sub>E e)))\<close>
+          using False that
+          by (auto simp add: u'_def)
+
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> e)\<close>
+          by (smt (verit, ccfv_SIG) Diff_iff False f_inv_into_f g.source_preserve g_eq_g'(2) imageI p.g.source_preserve pre_morph.select_convs(2) ran_v that u'_def)
+
+        also have \<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (\<^bsub>u'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> e))\<close>
+          using False that
+          apply (auto simp add: u'_def)
+          prefer 2
+           apply (simp add: f_inv_into_f g_eq_g'(1) p.c.H.source_integrity)
+          using node_commutativity p.node_commutativity
+          using False 
+          apply (auto simp add: morph_comp_def)          
+          by (simp add: f_inv_into_f inv_into_into)
+
+        finally show ?thesis .
+      qed
+       
+
+      then have \<open>s\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e) = \<^bsub>u'\<^esub>\<^sub>V (s\<^bsub>C'\<^esub> e)\<close>
+        using g.inj_nodes that 
+        by (simp add: c.H.source_integrity inj_on_def p.c.H.source_integrity ran_e ran_v)
+
+      thus ?thesis ..
+    qed
+  (* next *)
+    show \<open>\<^bsub>u'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> e) = t\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C'\<^esub>\<close> for e
+    proof -
+      have a: \<open>\<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (\<^bsub>u'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> e))\<close>
+      proof (cases \<open>e \<in> \<^bsub>c'\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>\<close>)
+        case True
+
+        obtain x where \<open>x \<in> E\<^bsub>A\<^esub>\<close> and \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close>
+          using True 
+          by blast
+
+        have \<open>\<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> (\<^bsub>c\<^esub>\<^sub>E x))\<close>
+          using True \<open>x \<in> E\<^bsub>A\<^esub>\<close> and \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close>
+          apply (auto simp add: u'_def)
+          using  \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> cide f_inv_into_f imageI inv_into_into
+          by (metis (no_types, opaque_lifting) cide1)
+
+        also have \<open>\<dots> =  \<^bsub>f\<^esub>\<^sub>V (\<^bsub>b\<^esub>\<^sub>V (t\<^bsub>A\<^esub> x))\<close>
+          using node_commutativity p.node_commutativity
+          using True \<open>x \<in> E\<^bsub>A\<^esub>\<close> \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close>
+          apply (auto simp add: u_def morph_comp_def)
+          using b.G.target_integrity c.target_preserve by fastforce
+
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (\<^bsub>c'\<^esub>\<^sub>V (t\<^bsub>A\<^esub> x))\<close>
+          by (metis \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.graph_axioms graph.target_integrity morph_comp_def o_apply p.node_commutativity pre_morph.select_convs(1))
+
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> e)\<close>
+          by (simp add: \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> p.c.target_preserve)
+
+        also have \<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (\<^bsub>u'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> e))\<close>
+          using True
+          apply (auto simp add: u'_def)
+
+          using \<open>\<^bsub>c'\<^esub>\<^sub>E x = e\<close> \<open>\<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> (\<^bsub>c\<^esub>\<^sub>E x))\<close> \<open>x \<in> E\<^bsub>A\<^esub>\<close> b.G.graph_axioms c.morphism_axioms calculation f_inv_into_f graph.target_integrity image_iff inv_into_into morphism.target_preserve c.morphism_axioms
+          apply (smt (verit, best) cid1 p.c.target_preserve)
+          using b.G.target_integrity image_iff p.c.target_preserve by fastforce
+
+        finally show ?thesis .
+      next
+        case False
+        have \<open>\<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)) = \<^bsub>g\<^esub>\<^sub>V (t\<^bsub>C\<^esub> (inv_into (E\<^bsub>C\<^esub> - \<^bsub>c\<^esub>\<^sub>E ` E\<^bsub>A\<^esub>) \<^bsub>g\<^esub>\<^sub>E (\<^bsub>g'\<^esub>\<^sub>E e)))\<close>
+          using False that
+          by (auto simp add: u'_def)
+
+        also have \<open>\<dots> = \<^bsub>g'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> e)\<close>
+          by (smt (verit, ccfv_SIG) Diff_iff False f_inv_into_f g.target_preserve g_eq_g'(2) imageI p.g.target_preserve pre_morph.select_convs(2) ran_v that u'_def)
+
+        also have \<open>\<dots> = \<^bsub>g\<^esub>\<^sub>V (\<^bsub>u'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> e))\<close>
+          using False that
+          apply (auto simp add: u'_def)
+          prefer 2
+           apply (simp add: f_inv_into_f g_eq_g'(1) p.c.H.target_integrity)
+          using node_commutativity p.node_commutativity
+          using False 
+          apply (auto simp add: morph_comp_def)          
+          by (simp add: f_inv_into_f inv_into_into)
+
+        finally show ?thesis .
+      qed
+       
+
+      then have \<open>t\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e) = \<^bsub>u'\<^esub>\<^sub>V (t\<^bsub>C'\<^esub> e)\<close>
+        using g.inj_nodes that 
+        by (simp add: c.H.target_integrity inj_on_def p.c.H.target_integrity ran_e ran_v)
+
+      thus ?thesis ..
+    qed
+  next
+    show \<open>l\<^bsub>C'\<^esub> v = l\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>C'\<^esub>\<close> for v
+      apply (auto simp add: u'_def)
+       apply (metis c.label_preserve f_inv_into_f imageI inv_into_into p.c.label_preserve)
+      by (smt (verit, ccfv_SIG) DiffE DiffI f_inv_into_f g.label_preserve g_eq_g'(1) imageI inv_into_into p.g.label_preserve that)
+  next
+    show \<open>m\<^bsub>C'\<^esub> e = m\<^bsub>C\<^esub> (\<^bsub>u'\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>C'\<^esub>\<close> for e
+      apply (auto simp add: u'_def)
+       apply (metis c.mark_preserve f_inv_into_f imageI inv_into_into p.c.mark_preserve)
+      by (smt (verit, del_insts) DiffD1 DiffI g.inj_edges g.mark_preserve g_eq_g'(2) imageE imageI inj_on_diff inv_into_f_eq p.g.mark_preserve that)
+  qed
+
+  have \<open>\<^bsub>u \<circ>\<^sub>\<rightarrow> u'\<^esub>\<^sub>V v = v\<close> if \<open>v \<in> V\<^bsub>C'\<^esub>\<close> for v
+    using that
+    apply (auto simp add: u_def u'_def morph_comp_def)
+       apply (smt (verit, best) cid f_inv_into_f imageI inv_into_into)
+      apply (simp add: inv_into_into)
+     apply (metis Diff_iff g_eq_g'(1) imageI inv_into_into)
+    by (simp add: f_inv_into_f g'.inj_nodes g_eq_g'(1) inj_on_diff)
+
+  moreover have \<open>\<^bsub>u \<circ>\<^sub>\<rightarrow> u'\<^esub>\<^sub>E e = e\<close> if \<open>e \<in> E\<^bsub>C'\<^esub>\<close> for e
+    using that
+    apply (auto simp add: u_def u'_def morph_comp_def)
+       apply (smt (verit, best) cide f_inv_into_f imageI inv_into_into)
+      apply (simp add: inv_into_into)
+     apply (metis DiffD2 DiffI g_eq_g'(2) imageI inv_into_into)
+    by (simp add: f_inv_into_f g'.inj_edges g_eq_g'(2) inj_on_diff)
+
+  moreover have \<open>\<^bsub>u' \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = v\<close> if \<open>v \<in> V\<^bsub>C\<^esub>\<close> for v
+    using that
+    apply (auto simp add: u_def u'_def morph_comp_def)
+    apply (metis (no_types, opaque_lifting) cid1 f_inv_into_f imageI inv_into_into)
+      apply (simp add: inv_into_into)
+     apply (metis Diff_iff g_eq_g'(1) imageI inv_into_into)
+    by (metis (no_types, lifting) Diff_iff bij_betw_inv_into_left bij_g(1) f_inv_into_f g_eq_g'(1) imageI)
+
+  moreover have \<open>\<^bsub>u' \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = e\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
+    using that
+    apply (auto simp add: u_def u'_def morph_comp_def)
+       apply (metis (no_types, opaque_lifting) cide1 f_inv_into_f imageI inv_into_into)
+      apply (simp add: inv_into_into)
+    apply (metis DiffD2 DiffI g_eq_g'(2) imageI inv_into_into)
+    by (metis (full_types) Diff_iff f_inv_into_f g.inj_edges g_eq_g'(2) imageI inj_on_diff inv_into_f_eq)
+
+
+  ultimately show ?thesis
+    using comp_id_bij[OF u.morphism_axioms u'.morphism_axioms]
+    by blast
+qed
 
 
 
