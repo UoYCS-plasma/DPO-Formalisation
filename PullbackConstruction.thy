@@ -2,8 +2,6 @@ theory PullbackConstruction
   imports Morphism Pullback
 begin
 
-(* declare [[show_types, show_sorts]]
- *)
 locale pullback_construction =
   f: morphism B D f +
   g: morphism C D g 
@@ -205,6 +203,82 @@ qed
 end
 
 
+
+context pushout_diagram
+begin
+
+
+theorem uniqueness_pc:
+  fixes C' c' g'
+  assumes 
+    C': \<open>graph C'\<close> and
+    c': \<open>morphism A C' c'\<close> and
+    g': \<open>morphism C' D g'\<close>
+  shows \<open>pushout_diagram A B C' D b c' f g' \<longleftrightarrow> (\<exists>u. bijective_morphism C C' u)\<close>
+proof 
+  show \<open>\<exists>u. bijective_morphism C C' u\<close>
+    if \<open>pushout_diagram A B C' D b c' f g'\<close>
+  proof -
+
+    interpret po1: pushout_diagram A B C D b c f g
+      by (simp add: pushout_diagram_axioms)
+
+    interpret po2: pushout_diagram A B C' D b c' f g'
+      using that by assumption
+
+
+    (* front right *)
+    interpret fr: pullback_construction C' D C g' g ..
+
+    (* back left *)
+    interpret bt: pullback_diagram A A A B idM idM b b
+    proof
+      show \<open>\<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>V v = \<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>V v\<close> if \<open> v \<in> V\<^bsub>A\<^esub> \<close> for v
+        by (simp add: morph_comp_def)
+    next
+      show \<open>\<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>E e = \<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>A\<^esub>\<close> for e
+        by (simp add: morph_comp_def)
+    next
+      show \<open>Ex1M
+            (\<lambda>x. morphism A' A x \<and>
+                  (\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>b'\<^esub>\<^sub>V v) \<and>
+                  (\<forall>e\<in>E\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>b'\<^esub>\<^sub>E e) \<and>
+                  (\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e))
+            A' \<close>
+        if \<open>graph A'\<close>
+          \<open>morphism A' A c'\<close>
+          \<open>morphism A' A b'\<close>
+          \<open>\<And>v. v \<in> V\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>b \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>b \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close>
+          \<open>\<And>e. e \<in> E\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>b \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>E e = \<^bsub>b \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e\<close>
+        for A' :: "('c,'d) ngraph" and b' c'
+      proof -
+        interpret a: bijective_morphism A A idM ..
+
+        define u where \<open>u \<equiv> b'\<close>
+        interpret u: morphism A' A u
+          by (simp add: u_def \<open>morphism A' A b'\<close>)
+
+        show ?thesis
+        proof (rule_tac x = u in exI, intro conjI)
+          show \<open>morphism A' A u\<close>
+            using u.morphism_axioms by assumption
+          show \<open>\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v\<close>
+            using           \<open>\<And>v. v \<in> V\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>b \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>b \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close>
+            apply (simp add: morph_comp_def u_def)
+            sorry
+        qed (simp_all add: u_def morph_comp_def)
+
+(*     interpret tf: pushout_diagram A A C' fr.A idM *)
+
+
+
+  show ?thesis
+    sorry
+
+qed
+
+
+end
 
 end
 
