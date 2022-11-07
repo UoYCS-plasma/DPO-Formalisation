@@ -553,7 +553,33 @@ lemma f_comp_g_inj_f_inj:
   using assms
   by (auto simp add: morph_comp_def injective_morphism_def injective_morphism_axioms_def intro: inj_on_imageI2)
 
+lemma bij_comp_bij_is_bij:
+  assumes 
+    f: \<open>bijective_morphism A B f\<close> and 
+    g: \<open>bijective_morphism B C g\<close>
+  shows \<open>bijective_morphism A C (g\<circ>\<^sub>\<rightarrow> f)\<close>
+proof -
+  interpret f: bijective_morphism A B f
+    using f by assumption
 
+  interpret g: bijective_morphism B C g
+    using g by assumption
+
+  interpret c: morphism A C "g\<circ>\<^sub>\<rightarrow> f"
+    using wf_morph_comp[OF f.morphism_axioms g.morphism_axioms]
+    by assumption
+
+  show ?thesis
+  proof
+    show \<open>bij_betw \<^bsub>g \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V V\<^bsub>A\<^esub> V\<^bsub>C\<^esub>\<close>
+      using bij_betw_trans[OF f.bij_nodes g.bij_nodes]
+      by (simp add: morph_comp_def)
+  next
+    show \<open> bij_betw \<^bsub>g \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E E\<^bsub>A\<^esub> E\<^bsub>C\<^esub>\<close>
+      using bij_betw_trans[OF f.bij_edges g.bij_edges]
+      by (simp add: morph_comp_def)
+  qed
+qed
 
 lemma f_comp_g_surj_g_surj:
   assumes 

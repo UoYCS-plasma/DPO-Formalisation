@@ -211,6 +211,7 @@ begin
 theorem uniqueness_pc:
   fixes C' c' g'
   assumes 
+    b: \<open>injective_morphism A B b\<close> and
     C': \<open>graph C'\<close> and
     c': \<open>morphism A C' c'\<close> and
     g': \<open>morphism C' D g'\<close>
@@ -227,50 +228,28 @@ proof
       using that by assumption
 
 
-    (* front right *)
+    (* front right *)      
     interpret fr: pullback_construction C' D C g' g ..
 
     (* back left *)
     interpret bt: pullback_diagram A A A B idM idM b b
-    proof
-      show \<open>\<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>V v = \<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>V v\<close> if \<open> v \<in> V\<^bsub>A\<^esub> \<close> for v
-        by (simp add: morph_comp_def)
-    next
-      show \<open>\<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>E e = \<^bsub>b \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>A\<^esub>\<close> for e
-        by (simp add: morph_comp_def)
-    next
-      show \<open>Ex1M
-            (\<lambda>x. morphism A' A x \<and>
-                  (\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>b'\<^esub>\<^sub>V v) \<and>
-                  (\<forall>e\<in>E\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>b'\<^esub>\<^sub>E e) \<and>
-                  (\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e))
-            A' \<close>
-        if \<open>graph A'\<close>
-          \<open>morphism A' A c'\<close>
-          \<open>morphism A' A b'\<close>
-          \<open>\<And>v. v \<in> V\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>b \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>b \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close>
-          \<open>\<And>e. e \<in> E\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>b \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>E e = \<^bsub>b \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e\<close>
-        for A' :: "('c,'d) ngraph" and b' c'
-      proof -
-        interpret a: bijective_morphism A A idM ..
+      using fun_algrtr_4_7_2[OF b] by assumption
 
-        define u where \<open>u \<equiv> b'\<close>
-        interpret u: morphism A' A u
-          by (simp add: u_def \<open>morphism A' A b'\<close>)
+    (* back right *)
+    define h where \<open>h \<equiv> \<lparr>node_map = \<lambda>v. (\<^bsub>c'\<^esub>\<^sub>V v, \<^bsub>c\<^esub>\<^sub>V v), edge_map = \<lambda>e. (\<^bsub>c'\<^esub>\<^sub>E e, \<^bsub>c\<^esub>\<^sub>E e)\<rparr>\<close>
+    interpret h: morphism A fr.A h
+      sorry
 
-        show ?thesis
-        proof (rule_tac x = u in exI, intro conjI)
-          show \<open>morphism A' A u\<close>
-            using u.morphism_axioms by assumption
-          show \<open>\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v\<close>
-            using           \<open>\<And>v. v \<in> V\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>b \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>b \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close>
-            apply (simp add: morph_comp_def u_def)
-            sorry
-        qed (simp_all add: u_def morph_comp_def)
-
-(*     interpret tf: pushout_diagram A A C' fr.A idM *)
+    define l :: "('k \<times> 'g, 'g, 'l \<times> 'h, 'h) pre_morph" 
+      where \<open>l \<equiv> \<lparr>node_map = snd, edge_map = snd\<rparr>\<close>
+    interpret l: morphism fr.A C l
+      apply standard
+           apply (auto simp add: l_def fr.A_def)
+       apply (simp add: g.label_preserve po2.g.label_preserve)
+      by (simp add: g.mark_preserve po2.g.mark_preserve)
 
 
+    interpret br: pullback_diagram A fr.A A B h idM l
 
   show ?thesis
     sorry

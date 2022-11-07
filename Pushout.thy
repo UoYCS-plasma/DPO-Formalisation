@@ -236,6 +236,7 @@ proof -
 qed
 
 
+
 lemma b_inj_imp_g_inj:
   assumes \<open>injective_morphism A B b\<close>
   shows \<open>injective_morphism C D g\<close>
@@ -395,11 +396,6 @@ proof -
       by (auto simp add: morph_comp_def  inj_on_def) metis
   qed
 qed        
-(* 
-lemma c_inj_imp_f_inj:
-  assumes \<open>injective_morphism A C c\<close>
-  shows \<open>injective_morphism B D f\<close>
-  sorry *)
 
 
 
@@ -1134,6 +1130,14 @@ proof (rule ccontr)
     qed
   qed
 qed
+
+lemma
+  assumes
+    b: \<open>injective_morphism A B b\<close>
+    \<open>x \<in> V\<^bsub>D\<^esub>\<close> and \<open>b' \<in> V\<^bsub>B\<^esub>\<close> and \<open>c' \<in> V\<^bsub>C\<^esub>\<close> and
+\<open>\<^bsub>f\<^esub>\<^sub>V b' = \<^bsub>g\<^esub>\<^sub>V c'\<close> and \<open>\<^bsub>f\<^esub>\<^sub>V b' = x\<close>
+shows \<open>\<exists>a. a \<in> V\<^bsub>A\<^esub> \<longrightarrow> (\<^bsub>b\<^esub>\<^sub>V a = b' \<and> \<^bsub>c\<^esub>\<^sub>V a = c')\<close>
+  sorry
 
 
 end

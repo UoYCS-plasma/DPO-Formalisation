@@ -23,7 +23,7 @@ assumes
             (\<forall>e \<in> E\<^bsub>A'\<^esub>. \<^bsub>c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e))
             A'\<close>
 begin
-
+(* 
 lemma pb_bij:
   fixes A' u
   assumes 
@@ -31,7 +31,7 @@ lemma pb_bij:
     u:  \<open>bijective_morphism A A' u\<close> 
   obtains b' and c' where \<open>pullback_diagram A' B C D b' c' f g\<close>
   sorry
-
+ *)
 
 lemma universal_property_exist_gen:
   fixes A'
@@ -336,6 +336,56 @@ proof -
 qed
 end
 
+
+lemma fun_algrtr_4_7_2:
+  fixes C A m
+  assumes \<open>injective_morphism C A m\<close>
+  shows \<open>pullback_diagram C C C A idM idM m m\<close>
+proof -
+  interpret m: injective_morphism C A m
+    using assms by assumption
+
+  interpret idm: injective_morphism C C idM
+    by (simp add: m.G.idm.injective_morphism_axioms)
+
+  show ?thesis
+  proof
+    show \<open>\<^bsub>m \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>V v = \<^bsub>m \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>C\<^esub>\<close> for v
+      by (simp add: morph_comp_def)
+  next
+    show \<open>\<^bsub>m \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>E e = \<^bsub>m \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>C\<^esub>\<close> for e
+      by (simp add: morph_comp_def)
+  next
+    show \<open>Ex1M (\<lambda>x. morphism A' C x \<and> (\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>b'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>b'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>A'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e)) A'\<close>
+      if \<open>graph A'\<close> \<open>morphism A' C c'\<close> \<open>morphism A' C b'\<close> 
+        \<open>\<And>v. v \<in> V\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>m \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>m \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close>
+        \<open>\<And>e. e \<in> E\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>m \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>E e = \<^bsub>m \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e\<close>
+      for A':: "('c,'d) ngraph" and c' b'
+    proof -
+
+
+      interpret c': morphism A' C c'
+        using  \<open>morphism A' C c'\<close> by assumption
+
+      interpret b': morphism A' C b'
+        using  \<open>morphism A' C b'\<close> by assumption
+
+      have \<open>\<^bsub>b'\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>A'\<^esub>\<close>for v
+        using that m.inj_nodes c'.morph_node_range b'.morph_node_range
+          \<open>\<And>v. v \<in> V\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>m \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>m \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close>
+        by(simp add: morph_comp_def inj_onD)
+
+      moreover have \<open>\<^bsub>b'\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>A'\<^esub>\<close> for e
+        using that m.inj_edges c'.morph_edge_range b'.morph_edge_range
+          \<open>\<And>e. e \<in> E\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>m \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>E e = \<^bsub>m \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e\<close>
+        by(simp add: morph_comp_def inj_onD)
+
+      ultimately show ?thesis
+        using c'.morphism_axioms by auto
+    qed
+  qed
+qed
+
 context pushout_diagram begin
 lemma
   assumes \<open>injective_morphism A B b\<close>
@@ -354,7 +404,12 @@ next
       \<open>morphism A' B b'\<close> 
       \<open>\<And>v. v \<in> V\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>g \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close>
       \<open>\<And>e. e \<in> E\<^bsub>A'\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>E e = \<^bsub>g \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e\<close> for A' :: "('c,'d) ngraph" and c' b'
-    sorry
+  proof -
+    interpret b: injective_morphism A B b
+      using assms by assumption
+
+
+    oops
 qed
 
 end
