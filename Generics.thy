@@ -81,6 +81,9 @@ lemma nmorph_to_from[simp]:
   \<open>from_nmorph (to_nmorph m) = m\<close>
   by (simp add: from_nmorph_def to_nmorph_def from_nat_def)
 
+lemma to_nmorph_dist:
+  \<open>to_nmorph (g \<circ>\<^sub>\<rightarrow> f) = to_nmorph g \<circ>\<^sub>\<rightarrow> to_nmorph f\<close>
+  by (auto simp add: morph_comp_def to_nmorph_def)
 
 definition to_nmorph2 :: "(nat,'v::countable,nat, 'e::countable) pre_morph \<Rightarrow> nmorph" where
 "to_nmorph2 m \<equiv> \<lparr>node_map = \<lambda>v. to_nat (\<^bsub>m\<^esub>\<^sub>V v), edge_map = \<lambda>e. to_nat (\<^bsub>m\<^esub>\<^sub>E e)\<rparr>"
