@@ -23,15 +23,7 @@ assumes
             (\<forall>e \<in> E\<^bsub>A'\<^esub>. \<^bsub>c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e))
             A'\<close>
 begin
-(* 
-lemma pb_bij:
-  fixes A' u
-  assumes 
-    A': \<open>graph A'\<close> and
-    u:  \<open>bijective_morphism A A' u\<close> 
-  obtains b' and c' where \<open>pullback_diagram A' B C D b' c' f g\<close>
-  sorry
- *)
+
 
 lemma universal_property_exist_gen:
   fixes A'
@@ -385,7 +377,7 @@ proof -
     qed
   qed
 qed
-
+(* 
 context pushout_diagram begin
 lemma
   assumes \<open>injective_morphism A B b\<close>
@@ -408,10 +400,221 @@ next
     interpret b: injective_morphism A B b
       using assms by assumption
 
+    show ?thesis
+      using fact_2_17_2_nodes fact_2_17_2_edges that
+      sorry
+  qed
+qed
+end *)
 
-    oops
+
+
+(*
+Fundamentals of Algebraic Graph Transformation
+Fact 2.27, Pullback composition (PDF P 45)
+https://link.springer.com/content/pdf/10.1007/3-540-31188-2.pdf
+ *)
+lemma pullback_composition:
+  assumes 
+    1: \<open>pullback_diagram A B C D f g g' f'\<close> and
+    2: \<open>pullback_diagram B E D F e g' e'' e'\<close>
+  shows \<open>pullback_diagram A E C F (e \<circ>\<^sub>\<rightarrow> f) g e'' (e' \<circ>\<^sub>\<rightarrow> f')\<close>
+proof -
+  interpret 1: pullback_diagram A B C D f g g' f'
+    using 1 by assumption
+
+  interpret 2: pullback_diagram B E D F e g' e'' e'
+    using 2 by assumption
+
+  interpret b: morphism A E \<open>e \<circ>\<^sub>\<rightarrow> f\<close>
+    using wf_morph_comp[OF "1.b.morphism_axioms" "2.b.morphism_axioms"]
+    by assumption
+
+  interpret b: morphism C F \<open>e' \<circ>\<^sub>\<rightarrow> f'\<close>
+    using wf_morph_comp[OF "1.g.morphism_axioms" "2.g.morphism_axioms"]
+    by assumption
+
+  show ?thesis
+  proof
+    show \<open>\<^bsub>e'' \<circ>\<^sub>\<rightarrow> (e \<circ>\<^sub>\<rightarrow> f)\<^esub>\<^sub>V v = \<^bsub>e' \<circ>\<^sub>\<rightarrow> f' \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>A\<^esub>\<close> for v
+      using that "1.node_commutativity" "2.node_commutativity"
+      by (auto simp add: morph_comp_def "1.b.morph_node_range")
+  next
+    show \<open>\<^bsub>e'' \<circ>\<^sub>\<rightarrow> (e \<circ>\<^sub>\<rightarrow> f)\<^esub>\<^sub>E ea = \<^bsub>e' \<circ>\<^sub>\<rightarrow> f' \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E ea\<close> if \<open>ea \<in> E\<^bsub>A\<^esub>\<close> for ea
+      using that "1.edge_commutativity" "2.edge_commutativity"
+      by (auto simp add: morph_comp_def "1.b.morph_edge_range")
+  next
+    show \<open>Ex1M
+        (\<lambda>x. morphism X A x \<and>
+             (\<forall>v \<in>V\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>k\<^esub>\<^sub>V v) \<and>
+             (\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>k\<^esub>\<^sub>E ea) \<and>
+             (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v) \<and> (\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea))
+        X \<close>
+      if \<open>graph X\<close> \<open>morphism X C h\<close> \<open>morphism X E k\<close>
+        \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>e'' \<circ>\<^sub>\<rightarrow> k\<^esub>\<^sub>V v = \<^bsub>e' \<circ>\<^sub>\<rightarrow> f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
+        \<open>\<And>e. e \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>e'' \<circ>\<^sub>\<rightarrow> k\<^esub>\<^sub>E e = \<^bsub>e' \<circ>\<^sub>\<rightarrow> f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e\<close>
+      for X :: "('c,'d) ngraph" and h k
+    proof -
+
+      interpret f'h: morphism X D \<open>f' \<circ>\<^sub>\<rightarrow> h\<close>
+        using "1.g.morphism_axioms" that(2) wf_morph_comp by blast
+
+      have a: \<open>\<^bsub>e'' \<circ>\<^sub>\<rightarrow> k\<^esub>\<^sub>V v = \<^bsub>e' \<circ>\<^sub>\<rightarrow> (f' \<circ>\<^sub>\<rightarrow> h)\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>X\<^esub>\<close> for v
+        using that \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>e'' \<circ>\<^sub>\<rightarrow> k\<^esub>\<^sub>V v = \<^bsub>e' \<circ>\<^sub>\<rightarrow> f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
+        by (simp add: morph_comp_def)
+
+      have b: \<open>\<^bsub>e'' \<circ>\<^sub>\<rightarrow> k\<^esub>\<^sub>E ea = \<^bsub>e' \<circ>\<^sub>\<rightarrow> (f' \<circ>\<^sub>\<rightarrow> h)\<^esub>\<^sub>E ea\<close> if \<open>ea \<in> E\<^bsub>X\<^esub>\<close> for ea
+        using that \<open>\<And>e. e \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>e'' \<circ>\<^sub>\<rightarrow> k\<^esub>\<^sub>E e = \<^bsub>e' \<circ>\<^sub>\<rightarrow> f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e\<close>
+        by (simp add: morph_comp_def)
+
+      obtain y where \<open>morphism X B y\<close> 
+        and \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>k\<^esub>\<^sub>V v = \<^bsub> e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v\<close>
+        and \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>k\<^esub>\<^sub>E ea = \<^bsub> e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea\<close>
+        and \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g' \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
+        and \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g' \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E ea\<close>
+        using "2.universal_property"[OF \<open>graph X\<close> f'h.morphism_axioms \<open>morphism X E k\<close> a b]
+        by force
+
+      have a': \<open>\<^bsub>g' \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>X\<^esub>\<close> for v
+        using that \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g' \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
+        by (simp add: morph_comp_def)
+
+      have b': \<open>\<^bsub>g' \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E ea\<close> if \<open>ea \<in> E\<^bsub>X\<^esub>\<close> for ea
+        using that \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g' \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E ea\<close>
+        by (simp add: morph_comp_def)
+
+      obtain x where \<open>morphism X A x\<close>
+        and \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v\<close>
+        and \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea\<close>
+        and \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v\<close>
+        and \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>y\<^esub>\<^sub>E ea\<close>
+        using "1.universal_property"[OF \<open>graph X\<close> \<open>morphism X C h\<close> \<open>morphism X B y\<close> a' b']
+        by fast
+
+      have trv: \<open>\<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>k\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>X\<^esub>\<close> for v
+      proof -
+        have \<open>\<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v\<close>
+          using that \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v\<close>
+          by (simp add: morph_comp_def)
+        also have \<open>\<dots> = \<^bsub>k\<^esub>\<^sub>V v\<close>
+          by (simp add: \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>k\<^esub>\<^sub>V v = \<^bsub>e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v\<close> that)
+        finally show ?thesis .
+      qed
+
+      have tre: \<open>\<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>k\<^esub>\<^sub>E ea\<close> if \<open>ea \<in> E\<^bsub>X\<^esub>\<close> for ea
+      proof -
+        have \<open>\<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea\<close>
+          using that \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>y\<^esub>\<^sub>E ea\<close>
+          by (simp add: morph_comp_def)
+        also have \<open>\<dots> = \<^bsub>k\<^esub>\<^sub>E ea\<close>
+          by (simp add: \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>k\<^esub>\<^sub>E ea = \<^bsub>e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea\<close> that)
+        finally show ?thesis .
+      qed
+
+      have uniq_y: \<open>(\<forall>v \<in> V\<^bsub>X\<^esub>. \<^bsub>uy\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e \<in> E\<^bsub>X\<^esub>. \<^bsub>uy\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e)\<close>
+            if \<open>morphism X B uy\<close>
+            \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> uy\<^esub>\<^sub>V v = \<^bsub>k\<^esub>\<^sub>V v\<close>
+            \<open>\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> uy\<^esub>\<^sub>E ea = \<^bsub>k\<^esub>\<^sub>E ea\<close>
+            \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g' \<circ>\<^sub>\<rightarrow> uy\<^esub>\<^sub>V v = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
+            \<open>\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>g' \<circ>\<^sub>\<rightarrow> uy\<^esub>\<^sub>E e = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e\<close> for uy
+        using that ex_eq[OF "2.universal_property"[OF \<open>graph X\<close> f'h.morphism_axioms \<open>morphism X E k\<close> a b], of uy y]
+          \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>k\<^esub>\<^sub>E ea = \<^bsub>e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea\<close> \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>k\<^esub>\<^sub>V v = \<^bsub>e \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v\<close> \<open>morphism X B y\<close> a' b'
+        by fastforce
+
+
+      have uniq: \<open>(\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>ux\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>ux\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v)\<close>
+        if \<open>morphism X A ux\<close> 
+           \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>V v = \<^bsub>k\<^esub>\<^sub>V v\<close> 
+           \<open>\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>E ea = \<^bsub>k\<^esub>\<^sub>E ea\<close>
+           \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v\<close> 
+           \<open>\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea\<close> for ux
+      proof -
+        interpret ux: morphism X A ux
+          using \<open>morphism X A ux\<close>
+          by assumption
+
+            interpret fux: morphism X B \<open>f \<circ>\<^sub>\<rightarrow> ux\<close>
+              using \<open>morphism X A ux\<close> 
+              by (simp add: "1.b.morphism_axioms" wf_morph_comp)
+
+            have aa: \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> (f \<circ>\<^sub>\<rightarrow> ux)\<^esub>\<^sub>V v = \<^bsub>k\<^esub>\<^sub>V v\<close>
+              by (simp add: morph_assoc_nodes that(2))
+
+            have bb: \<open>\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> (f \<circ>\<^sub>\<rightarrow> ux)\<^esub>\<^sub>E ea = \<^bsub>k\<^esub>\<^sub>E ea\<close>
+              by (simp add: morph_assoc_edges that(3))
+
+            have cc: \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g' \<circ>\<^sub>\<rightarrow> (f \<circ>\<^sub>\<rightarrow> ux)\<^esub>\<^sub>V v = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
+              using \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v\<close>  "1.node_commutativity" ux.morph_node_range
+              by (simp add: morph_comp_def)
+
+            have dd: \<open>\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>g' \<circ>\<^sub>\<rightarrow> (f \<circ>\<^sub>\<rightarrow> ux)\<^esub>\<^sub>E e = \<^bsub>f' \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>E e\<close>
+              using \<open>\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea\<close> "1.edge_commutativity" ux.morph_edge_range
+              by (simp add: morph_comp_def)
+
+
+        have a''': \<open>morphism X A x \<and> (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E e = \<^bsub>h\<^esub>\<^sub>E e)\<close>
+          by (simp add: \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>y\<^esub>\<^sub>E ea\<close> \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea\<close> \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v\<close> \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v\<close> \<open>morphism X A x\<close>)
+
+        have b''': \<open>morphism X A ux \<and> (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>E e = \<^bsub>h\<^esub>\<^sub>E e)\<close>
+        proof (intro conjI)
+          show \<open>morphism X A ux\<close>
+            using \<open>morphism X A ux\<close>
+            by assumption
+        next
+          show \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v\<close>
+          proof -
+
+            show ?thesis
+              using uniq_y[OF fux.morphism_axioms aa bb cc dd]
+              by simp
+          qed
+        next
+          show \<open>\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e\<close>
+            using uniq_y[OF fux.morphism_axioms aa bb cc dd]
+            by simp
+        next
+          show \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v\<close>
+            using that(4) 
+            by assumption
+        next
+          show \<open>\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> ux\<^esub>\<^sub>E e = \<^bsub>h\<^esub>\<^sub>E e \<close>
+            using that(5) 
+            by assumption
+        qed
+
+          show ?thesis
+            using ex_eq[OF "1.universal_property"[OF \<open>graph X\<close> \<open>morphism X C h\<close> \<open>morphism X B y\<close> a' b'] a''' b''']
+            by simp
+      qed
+
+      show ?thesis
+      proof (rule_tac x = x in exI, intro conjI)
+        show \<open>morphism X A x\<close>
+          using  \<open>morphism X A x\<close> 
+          by assumption
+      next
+        show \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>k\<^esub>\<^sub>V v\<close>
+          by (simp add: trv)
+      next
+        show \<open>\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>k\<^esub>\<^sub>E ea\<close>
+          by (simp add: tre)
+      next
+        show \<open>\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v\<close>
+          by (simp add: \<open>\<And>v. v \<in> V\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v\<close>)
+      next
+        show \<open>\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea\<close>
+          by (simp add: \<open>\<And>ea. ea \<in> E\<^bsub>X\<^esub> \<Longrightarrow> \<^bsub>g \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea\<close>)
+      next
+        show \<open>\<forall>y. morphism X A y \<and>
+        (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v = \<^bsub>k\<^esub>\<^sub>V v) \<and>
+        (\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>e \<circ>\<^sub>\<rightarrow> f \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea = \<^bsub>k\<^esub>\<^sub>E ea) \<and>
+        (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>V v = \<^bsub>h\<^esub>\<^sub>V v) \<and> (\<forall>ea\<in>E\<^bsub>X\<^esub>. \<^bsub>g \<circ>\<^sub>\<rightarrow> y\<^esub>\<^sub>E ea = \<^bsub>h\<^esub>\<^sub>E ea) \<longrightarrow>
+        (\<forall>e\<in>E\<^bsub>X\<^esub>. \<^bsub>y\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>X\<^esub>. \<^bsub>y\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v)\<close>
+          by (simp add: uniq)
+      qed
+    qed
+  qed
 qed
 
-end
 
 end
