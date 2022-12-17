@@ -64,6 +64,7 @@ sublocale c: morphism A C c
   by standard 
     (auto simp add: A_def c_def f.mark_preserve g.mark_preserve f.label_preserve g.label_preserve)
 
+ 
 (* Proof: Fundamentals of Alg. Graph Trans, Ehrig, Prange Taentzer *)
 sublocale pb: pullback_diagram A B C D b c f g
 proof
@@ -200,62 +201,151 @@ next
 qed
 qed
 qed
-end
 
 
-
-context pushout_diagram
-begin
-
-
-theorem uniqueness_pc:
-  fixes C' c' g'
-  assumes 
-    b: \<open>injective_morphism A B b\<close> and
-    C': \<open>graph C'\<close> and
-    c': \<open>morphism A C' c'\<close> and
-    g': \<open>morphism C' D g'\<close>
-  shows \<open>pushout_diagram A B C' D b c' f g' \<longleftrightarrow> (\<exists>u. bijective_morphism C C' u)\<close>
-proof 
-  show \<open>\<exists>u. bijective_morphism C C' u\<close>
-    if \<open>pushout_diagram A B C' D b c' f g'\<close>
-  proof -
-
-    interpret po1: pushout_diagram A B C D b c f g
-      by (simp add: pushout_diagram_axioms)
-
-    interpret po2: pushout_diagram A B C' D b c' f g'
-      using that by assumption
-
-
-    (* front right *)      
-    interpret fr: pullback_construction C' D C g' g ..
-
-    (* back left *)
-    interpret bt: pullback_diagram A A A B idM idM b b
-      using fun_algrtr_4_7_2[OF b] by assumption
-
-    (* back right *)
-    define h where \<open>h \<equiv> \<lparr>node_map = \<lambda>v. (\<^bsub>c'\<^esub>\<^sub>V v, \<^bsub>c\<^esub>\<^sub>V v), edge_map = \<lambda>e. (\<^bsub>c'\<^esub>\<^sub>E e, \<^bsub>c\<^esub>\<^sub>E e)\<rparr>\<close>
-    interpret h: morphism A fr.A h
-      sorry
-
-    define l :: "('k \<times> 'g, 'g, 'l \<times> 'h, 'h) pre_morph" 
-      where \<open>l \<equiv> \<lparr>node_map = snd, edge_map = snd\<rparr>\<close>
-    interpret l: morphism fr.A C l
-      apply standard
-           apply (auto simp add: l_def fr.A_def)
-       apply (simp add: g.label_preserve po2.g.label_preserve)
-      by (simp add: g.mark_preserve po2.g.mark_preserve)
-
-
-    interpret br: pullback_diagram A fr.A A B h idM l
+lemma g_inj_imp_b_inj:
+  assumes g:\<open>injective_morphism C D g\<close>
+  shows \<open>injective_morphism A B b\<close>
+proof -
+  interpret g: injective_morphism C D g
+    using g by assumption
 
   show ?thesis
-    sorry
-
+  proof
+    show \<open>inj_on \<^bsub>b\<^esub>\<^sub>V V\<^bsub>A\<^esub>\<close>
+      using g.inj_nodes
+      by (simp add: A_def b_def inj_on_def)
+  next
+    show \<open>inj_on \<^bsub>b\<^esub>\<^sub>E E\<^bsub>A\<^esub>\<close>
+      using g.inj_edges
+      by (simp add: A_def b_def inj_on_def)
+  qed
 qed
 
+(* Lifted version *)
+lemma (in pullback_diagram) g_inj_imp_b_inj:
+  assumes g:\<open>injective_morphism C D g\<close>
+  shows \<open>injective_morphism A B b\<close>
+proof -
+  interpret g: injective_morphism C D g
+    using g by assumption
+
+  interpret pb: pullback_construction ..
+
+  interpret pbc: injective_morphism pb.A B pb.b
+    using pb.g_inj_imp_b_inj[OF g] by assumption
+
+  obtain u where \<open>bijective_morphism A pb.A u\<close> 
+    \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>pb.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>b\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>pb.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>b\<^esub>\<^sub>E e\<close>
+    \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>pb.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>c\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>pb.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>c\<^esub>\<^sub>E e\<close>
+    using pullback_diagram_axioms pb.pb.uniqueness_pb[OF b.G.graph_axioms b.morphism_axioms c.morphism_axioms]
+    by fast
+  interpret u: bijective_morphism A pb.A u
+    using \<open>bijective_morphism A pb.A u\<close> by assumption
+
+  interpret uc: injective_morphism A B \<open>pb.b \<circ>\<^sub>\<rightarrow> u\<close>
+    using inj_comp_inj[OF u.injective_morphism_axioms pbc.injective_morphism_axioms]
+    by assumption
+
+  show ?thesis
+  proof
+    show \<open>inj_on \<^bsub>b\<^esub>\<^sub>V V\<^bsub>A\<^esub>\<close>
+      using \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>pb.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>b\<^esub>\<^sub>V v\<close> uc.inj_nodes
+      by (simp add: inj_on_def)
+  next
+    show \<open>inj_on \<^bsub>b\<^esub>\<^sub>E E\<^bsub>A\<^esub>\<close>
+      using \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>pb.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>b\<^esub>\<^sub>E e\<close> uc.inj_edges
+      by (simp add: inj_on_def)
+  qed
+qed
+
+lemma reduced_chain_condition_nodes:
+  fixes x y
+  assumes 
+    \<open>x \<in> V\<^bsub>B\<^esub>\<close>
+    \<open>y \<in> V\<^bsub>C\<^esub>\<close>
+    \<open>\<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y\<close>
+  shows \<open>(\<exists>a1 \<in> V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2 \<in> V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y)\<close>
+proof 
+  show \<open>\<exists>a1\<in>V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x\<close>
+    using assms
+    by (auto simp add: A_def b_def) 
+next
+  show \<open>\<exists>a2\<in>V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y\<close>
+    using assms
+    by (auto simp add: A_def c_def) 
+qed
+
+lemma (in pullback_diagram) reduced_chain_condition_nodes:
+  fixes x y
+  assumes 
+    \<open>x \<in> V\<^bsub>B\<^esub>\<close>
+    \<open>y \<in> V\<^bsub>C\<^esub>\<close>
+    \<open>\<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y\<close>
+  shows \<open>(\<exists>a1 \<in> V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2 \<in> V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y)\<close>
+proof -
+  interpret constr: pullback_construction ..
+
+ obtain u where \<open>bijective_morphism A constr.A u\<close> 
+    \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>constr.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>b\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>constr.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>b\<^esub>\<^sub>E e\<close>
+    \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>constr.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>c\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>constr.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>c\<^esub>\<^sub>E e\<close>
+    using pullback_diagram_axioms constr.pb.uniqueness_pb[OF b.G.graph_axioms b.morphism_axioms c.morphism_axioms]
+    by fast
+
+  interpret u: bijective_morphism A constr.A u
+    using \<open>bijective_morphism A constr.A u\<close> by assumption
+
+  show ?thesis
+    using constr.reduced_chain_condition_nodes[OF assms]
+      \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>constr.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>b\<^esub>\<^sub>V v\<close>
+      \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>constr.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>c\<^esub>\<^sub>V v\<close>
+      u.surj_nodes
+    by (fastforce simp: morph_comp_def)
+qed
+
+lemma reduced_chain_condition_edges:
+  fixes x y
+  assumes 
+    \<open>x \<in> E\<^bsub>B\<^esub>\<close>
+    \<open>y \<in> E\<^bsub>C\<^esub>\<close>
+    \<open>\<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y\<close>
+  shows \<open>(\<exists>a1 \<in> E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2 \<in> E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y)\<close>
+proof 
+  show \<open>\<exists>a1\<in>E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x\<close>
+    using assms
+    by (auto simp add: A_def b_def) 
+next
+  show \<open>\<exists>a2\<in>E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y\<close>
+    using assms
+    by (auto simp add: A_def c_def) 
+qed
+
+lemma (in pullback_diagram) reduced_chain_condition_edges:
+  fixes x y
+  assumes 
+    \<open>x \<in> E\<^bsub>B\<^esub>\<close>
+    \<open>y \<in> E\<^bsub>C\<^esub>\<close>
+    \<open>\<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y\<close>
+  shows \<open>(\<exists>a1 \<in> E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2 \<in> E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y)\<close>
+proof -
+  interpret constr: pullback_construction ..
+
+ obtain u where \<open>bijective_morphism A constr.A u\<close> 
+    \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>constr.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>b\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>constr.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>b\<^esub>\<^sub>E e\<close>
+    \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>constr.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>c\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>constr.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>c\<^esub>\<^sub>E e\<close>
+    using pullback_diagram_axioms constr.pb.uniqueness_pb[OF b.G.graph_axioms b.morphism_axioms c.morphism_axioms]
+    by fast
+
+  interpret u: bijective_morphism A constr.A u
+    using \<open>bijective_morphism A constr.A u\<close> by assumption
+
+  show ?thesis
+    using constr.reduced_chain_condition_edges[OF assms]
+      \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>constr.b \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>b\<^esub>\<^sub>E e\<close>
+      \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>constr.c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>c\<^esub>\<^sub>E e\<close>
+      u.surj_edges
+    by (fastforce simp: morph_comp_def)
+qed
 
 end
 
