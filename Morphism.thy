@@ -358,16 +358,32 @@ next
   show \<open>inj_on \<^bsub>f\<^esub>\<^sub>E E\<^bsub>G\<^esub>\<close>
     by (blast intro: bij_betw_imp_inj_on bij_edges)
 qed
-(* 
+
 sublocale bijective_morphism \<subseteq> surjective_morphism
 proof
-  show \<open>\<exists>v'\<in>V\<^bsub>H\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = v'\<close> if \<open>v \<in> V\<^bsub>G\<^esub>\<close> for v
-    using morph_node_range that by blast
+  show \<open>\<exists>v'\<in>V\<^bsub>G\<^esub>. \<^bsub>f\<^esub>\<^sub>V v' = v\<close> if \<open>v \<in> V\<^bsub>H\<^esub>\<close> for v
+  proof -
+    have \<open>\<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>G\<^esub> = V\<^bsub>H\<^esub>\<close>
+      using bij_nodes
+      by (simp add: bij_betw_def)
+
+    thus ?thesis
+      using that
+      by force
+  qed
 next
-  show \<open>\<exists>e'\<in>E\<^bsub>H\<^esub>. \<^bsub>f\<^esub>\<^sub>E e = e'\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
-    using morph_edge_range that by blast
+  show \<open>\<exists>e'\<in>E\<^bsub>G\<^esub>. \<^bsub>f\<^esub>\<^sub>E e' = e\<close> if \<open>e \<in> E\<^bsub>H\<^esub>\<close> for e
+  proof -
+    have \<open>\<^bsub>f\<^esub>\<^sub>E ` E\<^bsub>G\<^esub> = E\<^bsub>H\<^esub>\<close>
+      using bij_edges
+      by (simp add: bij_betw_def)
+
+    thus ?thesis
+      using that
+      by force
+  qed
 qed
- *)
+  
 
 locale identity_morphism = 
   bijective_morphism G G f for G f +
@@ -469,7 +485,7 @@ next
     by (simp add: identity_morphism.id_edges morph_comp_def morphism.morph_edge_range)
 qed
 
-lemma inj_surj_morph_is_bij:
+lemma inj_surj_morph_is_bijI:
   assumes
   inj : \<open>injective_morphism G H g\<close> and
   surj: \<open>surjective_morphism G H g\<close>
@@ -517,7 +533,30 @@ next
   qed
 qed
 
+lemma bijective_morphismE:
+  fixes A B b
+  assumes 
+    major: \<open>bijective_morphism A B b\<close> and
+    minor: \<open>\<lbrakk>injective_morphism A B b; surjective_morphism A B b\<rbrakk> \<Longrightarrow> R\<close>
+  shows R
+  proof (rule minor)
+    show \<open>injective_morphism A B b\<close> 
+    proof -
+      interpret b: bijective_morphism A B b
+        using major by assumption
 
+      show ?thesis ..
+    qed
+  next
+    show \<open>surjective_morphism A B b\<close>
+    proof -
+      interpret b: bijective_morphism A B b
+        using major by assumption
+
+      show ?thesis ..
+    qed
+qed
+     
 lemma inj_comp_inj:
   assumes \<open>injective_morphism G H g\<close> and \<open>injective_morphism H K f\<close>
   shows \<open>injective_morphism G K (f \<circ>\<^sub>\<rightarrow> g)\<close>
@@ -596,16 +635,16 @@ lemma morph_comp_id[simp]:
     and  \<open>\<^bsub>idM \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E = \<^bsub>f\<^esub>\<^sub>E\<close>
   by (simp_all add: morph_comp_def)
 
-lemma morph_assoc[simp]: \<open>\<^bsub>x \<circ>\<^sub>\<rightarrow> (y \<circ>\<^sub>\<rightarrow> x)\<^esub>\<^sub>V = \<^bsub>(x \<circ>\<^sub>\<rightarrow> y) \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V\<close> and \<open>\<^bsub>x \<circ>\<^sub>\<rightarrow> (y \<circ>\<^sub>\<rightarrow> x)\<^esub>\<^sub>E = \<^bsub>(x \<circ>\<^sub>\<rightarrow> y) \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E\<close>
+lemma morph_assoc[simp]: 
+  \<open>\<^bsub>x \<circ>\<^sub>\<rightarrow> (y \<circ>\<^sub>\<rightarrow> x)\<^esub>\<^sub>V = \<^bsub>(x \<circ>\<^sub>\<rightarrow> y) \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>V\<close> and \<open>\<^bsub>x \<circ>\<^sub>\<rightarrow> (y \<circ>\<^sub>\<rightarrow> x)\<^esub>\<^sub>E = \<^bsub>(x \<circ>\<^sub>\<rightarrow> y) \<circ>\<^sub>\<rightarrow> x\<^esub>\<^sub>E\<close>
   by (auto simp: morph_comp_def)
 
-thm identity_morphism.intro
 (* TODO *)
-lemma xx2[intro]:
+lemma xx2:
 \<open>graph G \<Longrightarrow> identity_morphism G idM\<close>
   by (simp add: bijective_morphism.intro bijective_morphism_axioms_def identity_morphism_axioms_def identity_morphism_def morphism.intro morphism_axioms.intro)
 
-lemma xx3[elim]:
+lemma xx3:
   assumes \<open>graph G\<close>
   shows \<open>identity_morphism G idM\<close>
   by (simp add: assms bijective_morphism.intro bijective_morphism_axioms.intro identity_morphism.intro identity_morphism_axioms_def morphism.intro morphism_axioms_def)
@@ -614,7 +653,7 @@ lemma xx:
   assumes \<open>graph G\<close>
   obtains \<open>identity_morphism G idM\<close>
   by (simp add: assms bijective_morphism.intro bijective_morphism_axioms.intro identity_morphism.intro identity_morphism_axioms_def morphism.intro morphism_axioms_def)
-
+ 
 lemma comp_id_bij:
   assumes
     f: \<open>morphism G H f\<close> and
