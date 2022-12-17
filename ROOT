@@ -10,6 +10,9 @@ session "DPO-Formal" = HOL +
     Rule
     Pushout
     Gluing
+
+    Pullback
+    PullbackConstruction
     Generics
     Deletion
     DirectDerivation

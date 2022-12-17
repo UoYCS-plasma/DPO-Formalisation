@@ -81,6 +81,86 @@ lemma nmorph_to_from[simp]:
   \<open>from_nmorph (to_nmorph m) = m\<close>
   by (simp add: from_nmorph_def to_nmorph_def from_nat_def)
 
+lemma to_nmorph_dist:
+  \<open>to_nmorph (g \<circ>\<^sub>\<rightarrow> f) = to_nmorph g \<circ>\<^sub>\<rightarrow> to_nmorph f\<close>
+  by (auto simp add: morph_comp_def to_nmorph_def)
+
+definition to_nmorph2 :: "(nat,'v::countable,nat, 'e::countable) pre_morph \<Rightarrow> nmorph" where
+"to_nmorph2 m \<equiv> \<lparr>node_map = \<lambda>v. to_nat (\<^bsub>m\<^esub>\<^sub>V v), edge_map = \<lambda>e. to_nat (\<^bsub>m\<^esub>\<^sub>E e)\<rparr>"
+
+lemma morph_eq_nmorph2_iff: \<open>morphism G H u \<longleftrightarrow> morphism G (to_ngraph H) (to_nmorph2 u)\<close>
+proof
+  show \<open>morphism G (to_ngraph H) (to_nmorph2 u)\<close> if \<open>morphism G H u\<close>
+  proof -
+    interpret u: morphism G H u
+      using that by assumption
+
+    show ?thesis
+    proof intro_locales
+      show \<open>graph (to_ngraph H)\<close>
+        by (simp add: graph_ngraph_corres_iff u.H.graph_axioms)
+    next
+      show \<open>morphism_axioms G (to_ngraph H) (to_nmorph2 u)\<close>
+      proof
+        show \<open>\<^bsub>to_nmorph2 u\<^esub>\<^sub>E e \<in> E\<^bsub>to_ngraph H\<^esub>\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          by (simp add: to_ngraph_def to_nmorph2_def that u.morph_edge_range)
+      next
+        show \<open>\<^bsub>to_nmorph2 u\<^esub>\<^sub>V v \<in> V\<^bsub>to_ngraph H\<^esub>\<close> if \<open>v \<in> V\<^bsub>G\<^esub>\<close> for v
+          by (simp add: to_ngraph_def to_nmorph2_def that u.morph_node_range)
+      next
+        show \<open>\<^bsub>to_nmorph2 u\<^esub>\<^sub>V (s\<^bsub>G\<^esub> e) = s\<^bsub>to_ngraph H\<^esub> (\<^bsub>to_nmorph2 u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          by (simp add: to_ngraph_def to_nmorph2_def that u.source_preserve)
+      next
+        show \<open>\<^bsub>to_nmorph2 u\<^esub>\<^sub>V (t\<^bsub>G\<^esub> e) = t\<^bsub>to_ngraph H\<^esub> (\<^bsub>to_nmorph2 u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          by (simp add: to_ngraph_def to_nmorph2_def that u.target_preserve)
+      next
+        show \<open>l\<^bsub>G\<^esub> v = l\<^bsub>to_ngraph H\<^esub> (\<^bsub>to_nmorph2 u\<^esub>\<^sub>V v)\<close> if \<open> v \<in> V\<^bsub>G\<^esub>\<close> for v
+          by (simp add: to_ngraph_def to_nmorph2_def that u.label_preserve)
+      next
+        show \<open>m\<^bsub>G\<^esub> e = m\<^bsub>to_ngraph H\<^esub> (\<^bsub>to_nmorph2 u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          by (simp add: to_ngraph_def to_nmorph2_def that u.mark_preserve)
+      qed
+    qed
+  qed
+next
+  show \<open>morphism G H u\<close> if \<open>morphism G (to_ngraph H) (to_nmorph2 u)\<close>
+  proof -
+    interpret u: morphism G \<open>to_ngraph H\<close> \<open>to_nmorph2 u\<close>
+      using that by assumption
+
+    show ?thesis
+    proof intro_locales
+      show \<open>graph H\<close>
+        using graph_ngraph_corres_iff u.H.graph_axioms
+        by blast
+    next
+      show \<open>morphism_axioms G H u\<close>
+      proof
+        show \<open>\<^bsub>u\<^esub>\<^sub>E e \<in> E\<^bsub>H\<^esub>\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          using u.morph_edge_range
+          by (simp add: to_ngraph_def to_nmorph2_def that image_iff)
+      next
+        show \<open>\<^bsub>u\<^esub>\<^sub>V v \<in> V\<^bsub>H\<^esub>\<close> if \<open>v \<in> V\<^bsub>G\<^esub>\<close> for v
+          using u.morph_node_range
+          by (simp add: to_ngraph_def to_nmorph2_def that image_iff)
+      next
+        show \<open>\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>G\<^esub> e) = s\<^bsub>H\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          using u.source_preserve
+          by (simp add: to_ngraph_def to_nmorph2_def that)
+      next
+        show \<open>\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>G\<^esub> e) = t\<^bsub>H\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          using u.target_preserve
+          by (simp add: to_ngraph_def to_nmorph2_def that)
+      next
+        show \<open>l\<^bsub>G\<^esub> v = l\<^bsub>H\<^esub> (\<^bsub>u\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>G\<^esub>\<close> for v
+          by (simp add: to_ngraph_def to_nmorph2_def that u.label_preserve)
+      next
+        show \<open>m\<^bsub>G\<^esub> e = m\<^bsub>H\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>G\<^esub>\<close> for e
+          by (simp add: to_ngraph_def to_nmorph2_def that u.mark_preserve)
+      qed
+    qed
+  qed
+qed
 
 lemma 
   morph_eq_nmorph_iff: \<open>morphism G H m \<longleftrightarrow> morphism (to_ngraph G) (to_ngraph H) (to_nmorph m)\<close>
