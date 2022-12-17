@@ -164,43 +164,43 @@ proof -
   proof
     show \<open>\<^bsub>u\<^esub>\<^sub>E e \<in> E\<^bsub>G\<^esub>\<close> if \<open>e \<in> E\<^bsub>gl.H\<^esub>\<close> for e
       using that g.morph_edge_range
-      by (fastforce simp add: u_def)
+      by (auto simp add: u_def gl.H_def)
   next
     show \<open>\<^bsub>u\<^esub>\<^sub>V v \<in> V\<^bsub>G\<^esub>\<close> if \<open>v \<in> V\<^bsub>gl.H\<^esub>\<close> for v
       using that g.morph_node_range
-      by (fastforce simp add: u_def)
+      by (auto simp add: u_def gl.H_def)
   next
     show \<open>\<^bsub>u\<^esub>\<^sub>V (s\<^bsub>gl.H\<^esub> e) = s\<^bsub>G\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>gl.H\<^esub>\<close> for e
     proof (cases e)
       case (Inl a)
       then show ?thesis 
-        by (simp add: u_def)
+        by (simp add: u_def gl.H_def)
     next
       case (Inr b)
       then show ?thesis 
         using that  l.inj_nodes g.source_preserve 
-        by (auto simp add: u_def) (metis comp_apply morph_comp_def pre_morph.select_convs(1))
+        by (auto simp add: u_def gl.H_def) (metis comp_apply morph_comp_def pre_morph.select_convs(1))
     qed
   next
     show \<open>\<^bsub>u\<^esub>\<^sub>V (t\<^bsub>gl.H\<^esub> e) = t\<^bsub>G\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>gl.H\<^esub>\<close> for e
     proof (cases e)
       case (Inl a)
       then show ?thesis 
-        by (simp add: u_def)
+        by (simp add: u_def gl.H_def)
     next
       case (Inr b)
       then show ?thesis 
         using that  l.inj_nodes g.target_preserve 
-        by (auto simp add: u_def) (metis comp_apply morph_comp_def pre_morph.select_convs(1))
+        by (auto simp add: u_def gl.H_def) (metis comp_apply morph_comp_def pre_morph.select_convs(1))
     qed
   next
     show \<open>l\<^bsub>gl.H\<^esub> v = l\<^bsub>G\<^esub> (\<^bsub>u\<^esub>\<^sub>V v)\<close> if \<open>v \<in> V\<^bsub>gl.H\<^esub>\<close> for v
       using that g.label_preserve
-      by (fastforce simp add: u_def)
+      by (auto simp add: u_def gl.H_def)
   next
     show \<open>m\<^bsub>gl.H\<^esub> e = m\<^bsub>G\<^esub> (\<^bsub>u\<^esub>\<^sub>E e)\<close> if \<open>e \<in> E\<^bsub>gl.H\<^esub>\<close> for e
       using that g.mark_preserve
-      by (fastforce simp add: u_def)
+      by (auto simp add: u_def gl.H_def)
 
   next
     show \<open>bij_betw \<^bsub>u\<^esub>\<^sub>V V\<^bsub>gl.H\<^esub> V\<^bsub>G\<^esub>\<close>
@@ -216,7 +216,7 @@ proof -
 
       ultimately show ?thesis
         using  g.inj_nodes
-        by (auto simp add: u_def morph_comp_def bij_betw_def) (force simp add: inj_on_def)
+        by (force simp add: u_def inj_on_def bij_betw_def gl.H_def)
     qed
   next
     show \<open>bij_betw \<^bsub>u\<^esub>\<^sub>E E\<^bsub>gl.H\<^esub> E\<^bsub>G\<^esub>\<close>
@@ -232,7 +232,7 @@ proof -
 
       ultimately show ?thesis
         using  g.inj_edges
-        by (auto simp add: u_def morph_comp_def bij_betw_def) (force simp add: inj_on_def)
+        by (force simp add: u_def inj_on_def bij_betw_def gl.H_def)
     qed
   qed
 
@@ -240,16 +240,19 @@ proof -
     and \<open>\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> gl.c\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v\<close>  \<open>\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> gl.c\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e\<close>
   proof -
     show \<open>\<forall>v\<in>V\<^bsub>L\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> gl.h\<^esub>\<^sub>V v = \<^bsub>g\<^esub>\<^sub>V v\<close>
+      using l.inj_nodes gl.h_def
       by (auto simp add: morph_comp_def u_def l.inj_nodes)
+   
   next 
     show \<open>\<forall>e\<in>E\<^bsub>L\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> gl.h\<^esub>\<^sub>E e = \<^bsub>g\<^esub>\<^sub>E e\<close>
+      using gl.h_def
       by (auto simp add: morph_comp_def u_def l.inj_edges)
   next
     show \<open>\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> gl.c\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v\<close>
-      by (simp add: u_def morph_comp_def)
+      by (simp add: u_def gl.c_def morph_comp_def)
   next
     show \<open>\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> gl.c\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e\<close>
-      by (simp add: u_def morph_comp_def)
+      by (simp add: u_def gl.c_def morph_comp_def)
   qed
 
 
