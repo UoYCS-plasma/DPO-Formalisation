@@ -6,6 +6,14 @@ abbreviation Ex1M :: "(('v\<^sub>1,'v\<^sub>2,'e\<^sub>1,'e\<^sub>2) pre_morph \
   where "Ex1M P E \<equiv> \<exists>x. P x \<and> (\<forall>y. P y 
     \<longrightarrow> ((\<forall>e \<in> E\<^bsub>E\<^esub>. \<^bsub>y\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and>(\<forall>v \<in> V\<^bsub>E\<^esub>. \<^bsub>y\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v)))"
 
+lemma ex1m_eq_surrogate:
+  assumes \<open>P = T\<close>
+  and \<open>Ex1M P A\<close>
+shows \<open>Ex1M T A\<close>
+  using assms
+  by simp
+  
+
 lemma ex1m_ex: \<open>Ex1M P G \<Longrightarrow> \<exists>m. P m\<close>
   by fast
 
@@ -50,6 +58,46 @@ assumes
             (\<forall>e \<in> E\<^bsub>to_ngraph C\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> (to_nmorph g)\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e))
             (to_ngraph D)\<close>
 begin
+
+lemma flip_diagram:
+  \<open>pushout_diagram A C B D c b g f\<close>
+proof
+  show \<open>\<^bsub>g \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v = \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>A\<^esub>\<close> for v
+    using node_commutativity[OF that] by simp
+next
+  show \<open>\<^bsub>g \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e = \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>A\<^esub>\<close> for e
+    using edge_commutativity[OF that] by simp
+next
+  show \<open>Ex1M
+        (\<lambda>xa. morphism (to_ngraph D) D' xa \<and>
+              (\<forall>v\<in>V\<^bsub>to_ngraph C\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph g\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and>
+              (\<forall>e\<in>E\<^bsub>to_ngraph C\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph g\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>to_ngraph B\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph f\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>to_ngraph B\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph f\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e))
+        (to_ngraph D)\<close>
+    if  \<open>graph D'\<close> \<open>morphism (to_ngraph C) D' x\<close> \<open>morphism (to_ngraph B) D' y\<close>
+        \<open>\<forall>v\<in>V\<^bsub>to_ngraph A\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>V v\<close>
+        \<open>\<forall>e\<in>E\<^bsub>to_ngraph A\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>E e\<close>
+      for D' :: "('c,'d) ngraph" and x y
+  proof -
+    have a: \<open>\<forall>v\<in>V\<^bsub>to_ngraph A\<^esub>. \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>V v = \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>V v\<close>
+      using \<open>\<forall>v\<in>V\<^bsub>to_ngraph A\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>V v = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>V v\<close>
+      by fastforce
+
+    have b: \<open>\<forall>e\<in>E\<^bsub>to_ngraph A\<^esub>. \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>E e = \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>E e\<close>
+      using  \<open>\<forall>e\<in>E\<^bsub>to_ngraph A\<^esub>. \<^bsub>x \<circ>\<^sub>\<rightarrow> to_nmorph c\<^esub>\<^sub>E e = \<^bsub>y \<circ>\<^sub>\<rightarrow> to_nmorph b\<^esub>\<^sub>E e\<close>
+      by fastforce
+
+    have c: \<open>(\<lambda>xa. morphism (to_ngraph D) D' xa \<and>
+       (\<forall>v\<in>V\<^bsub>to_ngraph B\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph f\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and>
+       (\<forall>e\<in>E\<^bsub>to_ngraph B\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph f\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>to_ngraph C\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph g\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>to_ngraph C\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph g\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e)) = (\<lambda>xa. morphism (to_ngraph D) D' xa \<and>
+           (\<forall>v\<in>V\<^bsub>to_ngraph C\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph g\<^esub>\<^sub>V v = \<^bsub>x\<^esub>\<^sub>V v) \<and>
+           (\<forall>e\<in>E\<^bsub>to_ngraph C\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph g\<^esub>\<^sub>E e = \<^bsub>x\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>to_ngraph B\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph f\<^esub>\<^sub>V v = \<^bsub>y\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>to_ngraph B\<^esub>. \<^bsub>xa \<circ>\<^sub>\<rightarrow> to_nmorph f\<^esub>\<^sub>E e = \<^bsub>y\<^esub>\<^sub>E e))\<close>
+      by fastforce
+
+    show ?thesis
+      using ex1m_eq_surrogate[OF c universal_property[OF \<open>graph D'\<close> \<open>morphism (to_ngraph B) D' y\<close> \<open>morphism (to_ngraph C) D' x\<close> a b]]
+      by assumption
+  qed
+qed
 
 lemma universal_property_exist_gen:
   fixes D'
@@ -397,7 +445,303 @@ proof -
   qed
 qed        
 
+lemma joint_surjectivity_edges:
+  fixes x
+  assumes \<open>x \<in> E\<^bsub>D\<^esub>\<close>
+  shows \<open>(\<exists>e \<in> E\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>E e = x) \<or> (\<exists>e \<in> E\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>E e = x)\<close> 
+proof (rule ccontr)
+  assume 
+    asm: \<open>\<not> ((\<exists>e\<in>E\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>E e = x) \<or> (\<exists>e\<in>E\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>E e = x))\<close>
+  show False
+  proof -
 
+    obtain e 
+      where e: \<open>e \<in> E\<^bsub>D\<^esub>\<close> 
+        and \<open>e \<notin> \<^bsub>g\<^esub>\<^sub>E ` E\<^bsub>C\<^esub>\<close> 
+        and \<open>e \<notin> \<^bsub>f\<^esub>\<^sub>E ` E\<^bsub>B\<^esub>\<close>
+      using asm assms
+      by fast
+
+    define D' 
+      where \<open>D' \<equiv> \<lparr>nodes  = V\<^bsub>D\<^esub>
+                  ,edges  = E\<^bsub>D\<^esub> <+> {e}
+                  ,source = case_sum s\<^bsub>D\<^esub> s\<^bsub>D\<^esub>
+                  ,target = case_sum t\<^bsub>D\<^esub> t\<^bsub>D\<^esub>
+                  ,node_label = l\<^bsub>D\<^esub>
+                  ,edge_label = case_sum m\<^bsub>D\<^esub> m\<^bsub>D\<^esub>\<rparr>\<close>
+
+    interpret D': graph D'
+      by standard
+        (auto simp add: D'_def e f.H.finite_nodes f.H.finite_edges f.H.source_integrity f.H.target_integrity)
+
+    define fd :: "('i, 'i, 'j, 'j+'j) pre_morph" and gd :: "('i, 'i, 'j, 'j+'j) pre_morph"
+      where \<open>fd \<equiv> \<lparr>node_map = id, edge_map = Inl\<rparr>\<close>
+        and \<open>gd \<equiv> \<lparr>node_map = id, edge_map = \<lambda>x. if x = e then Inr e else Inl x\<rparr>\<close>
+
+    interpret fd: morphism D D' fd
+      by standard (auto simp add: D'_def fd_def)
+
+    interpret gd: morphism D D' gd
+      by standard (auto simp add: D'_def gd_def)
+
+    define f' :: "('e, 'i, 'f, 'j + 'j) pre_morph" and g' :: "('g, 'i, 'h, 'j + 'j) pre_morph"
+      where \<open>f' = \<lparr>node_map = \<^bsub>f\<^esub>\<^sub>V, edge_map = Inl \<circ> \<^bsub>f\<^esub>\<^sub>E\<rparr>\<close> and
+        \<open>g' = \<lparr>node_map = \<^bsub>g\<^esub>\<^sub>V, edge_map = Inl \<circ> \<^bsub>g\<^esub>\<^sub>E\<rparr>\<close>
+
+    interpret f': morphism B D' f'
+      by standard 
+        (auto simp add: D'_def f'_def f.morph_edge_range f.morph_node_range 
+          f.source_preserve f.target_preserve f.label_preserve f.mark_preserve)
+
+    interpret g': morphism C D' g'
+      by standard 
+        (auto simp add: D'_def g'_def g.morph_edge_range g.morph_node_range 
+          g.source_preserve g.target_preserve g.label_preserve g.mark_preserve)
+
+    have tr: \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e\<close>
+      using node_commutativity edge_commutativity
+      by (auto simp add: morph_comp_def f'_def g'_def)
+
+    have u1: \<open>morphism D D' fd \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
+    proof (intro conjI)
+      show \<open>morphism D D' fd\<close>
+        using fd.morphism_axioms by assumption
+    qed (auto simp add: morph_comp_def f'_def fd_def g'_def )
+   
+    have u2: \<open>morphism D D' gd \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
+    proof (intro conjI)
+      show \<open>morphism D D' gd\<close>
+        using gd.morphism_axioms by assumption
+    next
+      show \<open>\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close>
+        by (simp add: morph_comp_def f'_def gd_def)
+    next
+      show \<open>\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e\<close>
+        using \<open>e \<notin> \<^bsub>f\<^esub>\<^sub>E ` E\<^bsub>B\<^esub>\<close>
+        by (auto simp add: morph_comp_def f'_def gd_def)
+    next
+      show \<open>\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v\<close> 
+        by (simp add: morph_comp_def gd_def g'_def)
+    next
+      show \<open>\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e\<close>
+        using \<open>e \<notin> \<^bsub>g\<^esub>\<^sub>E ` E\<^bsub>C\<^esub>\<close>   
+        by (auto simp add: morph_comp_def g'_def gd_def)
+    qed
+     
+    have diff: \<open>(\<exists>e\<in>E\<^bsub>D\<^esub>. \<^bsub>fd\<^esub>\<^sub>E e \<noteq> \<^bsub>gd\<^esub>\<^sub>E e) \<or> (\<exists>v\<in>V\<^bsub>D\<^esub>. \<^bsub>fd\<^esub>\<^sub>V v \<noteq> \<^bsub>gd\<^esub>\<^sub>V v)\<close>
+      by (auto simp add: fd_def gd_def e)
+
+
+    show ?thesis
+      using contr_eq1m[OF universal_property_exist_gen[OF D'.graph_axioms f'.morphism_axioms g'.morphism_axioms tr] u1 u2 diff]
+      by assumption
+  qed
+qed
+
+
+
+
+lemma joint_surjectivity_nodes:
+  fixes x
+  assumes \<open>x \<in> V\<^bsub>D\<^esub>\<close>
+  shows \<open>(\<exists>v \<in> V\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>V v = x) \<or> (\<exists>v \<in> V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = x)\<close> 
+proof (rule ccontr)
+
+  assume asm: \<open>\<not> ((\<exists>v\<in>V\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>V v = x) \<or> (\<exists>v\<in>V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = x))\<close>
+  show False
+  proof -
+
+    obtain v
+      where v: \<open>v \<in> V\<^bsub>D\<^esub>\<close> 
+        and \<open>v \<notin> \<^bsub>g\<^esub>\<^sub>V ` V\<^bsub>C\<^esub>\<close> 
+        and \<open>v \<notin> \<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>B\<^esub>\<close>
+      using asm assms
+      by fast
+
+    define D' 
+      where \<open>D' \<equiv> \<lparr>nodes  = V\<^bsub>D\<^esub> <+> {v}
+                  ,edges  = E\<^bsub>D\<^esub>
+                  ,source = Inl \<circ> s\<^bsub>D\<^esub>
+                  ,target = Inl \<circ> t\<^bsub>D\<^esub>
+                  ,node_label = case_sum l\<^bsub>D\<^esub> l\<^bsub>D\<^esub>
+                  ,edge_label = m\<^bsub>D\<^esub>\<rparr>\<close>
+
+    interpret D': graph D'
+      by standard
+        (auto simp add: D'_def v f.H.finite_nodes f.H.finite_edges f.H.source_integrity f.H.target_integrity)
+
+    define u1 :: "('i, 'i+'i, 'j, 'j) pre_morph" and u2 :: "('i, 'i+'i, 'j, 'j) pre_morph"
+      where \<open>u1 \<equiv> \<lparr>node_map = Inl, edge_map = id\<rparr>\<close>
+        and \<open>u2 \<equiv> \<lparr>node_map = \<lambda>x. if x = v then Inr x else Inl x, edge_map = id\<rparr>\<close>
+
+    interpret fd: morphism D D' u1
+      by standard (auto simp add: D'_def u1_def)
+
+    define f' :: "('e, 'i+'i, 'f, 'j) pre_morph" and g' :: "('g, 'i+'i, 'h, 'j) pre_morph"
+      where \<open>f' = \<lparr>node_map = Inl \<circ> \<^bsub>f\<^esub>\<^sub>V, edge_map = \<^bsub>f\<^esub>\<^sub>E\<rparr>\<close> and
+        \<open>g' = \<lparr>node_map = Inl \<circ> \<^bsub>g\<^esub>\<^sub>V, edge_map = \<^bsub>g\<^esub>\<^sub>E\<rparr>\<close>
+
+    interpret f': morphism B D' f'
+      by standard 
+        (auto simp add: D'_def f'_def f.morph_edge_range f.morph_node_range 
+          f.source_preserve f.target_preserve f.label_preserve f.mark_preserve)
+
+    interpret g': morphism C D' g'
+      by standard 
+        (auto simp add: D'_def g'_def g.morph_edge_range g.morph_node_range 
+          g.source_preserve g.target_preserve g.label_preserve g.mark_preserve)
+
+    have tr: \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e\<close>
+      using node_commutativity edge_commutativity
+      by (auto simp add: morph_comp_def f'_def g'_def)
+
+    have u1: \<open>morphism D D' u1 \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
+    proof (intro conjI)
+      show \<open>morphism D D' u1\<close>
+        using fd.morphism_axioms  by assumption
+    qed (auto simp add: morph_comp_def f'_def u1_def g'_def)
+
+    show ?thesis
+    proof (cases \<open>\<exists>x \<in> E\<^bsub>D\<^esub>. (s\<^bsub>D\<^esub> x = v \<or> t\<^bsub>D\<^esub> x = v)\<close>)
+      case True
+      then show ?thesis 
+      proof -
+        obtain e where \<open>e \<in> E\<^bsub>D\<^esub>\<close> \<open>s\<^bsub>D\<^esub> e = v \<or> t\<^bsub>D\<^esub> e = v\<close>
+          using True
+          by blast
+
+        show ?thesis (* proof generated by sledgehammer *)
+          using \<open>e \<in> E\<^bsub>D\<^esub>\<close> \<open>s\<^bsub>D\<^esub> e = v \<or> t\<^bsub>D\<^esub> e = v\<close> \<open>v \<notin> \<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>B\<^esub>\<close> \<open>v \<notin> \<^bsub>g\<^esub>\<^sub>V ` V\<^bsub>C\<^esub>\<close> f.source_preserve f.target_preserve b.H.source_integrity c.H.source_integrity b.H.target_integrity b.H.source_integrity imageI f.source_preserve g.source_preserve f.target_preserve g.target_preserve joint_surjectivity_edges 
+        proof -
+          obtain hh :: 'h and ff :: 'f where
+            "hh \<in> E\<^bsub>C\<^esub> \<and> e = \<^bsub>g\<^esub>\<^sub>E hh \<or> ff \<in> E\<^bsub>B\<^esub> \<and> e = \<^bsub>f\<^esub>\<^sub>E ff"
+            using \<open>e \<in> E\<^bsub>D\<^esub>\<close> joint_surjectivity_edges by moura
+          then have f1: "ff \<in> E\<^bsub>B\<^esub> \<and> e = \<^bsub>f\<^esub>\<^sub>E ff"
+          proof -
+            have f1: "hh \<in> E\<^bsub>C\<^esub> \<longrightarrow> t\<^bsub>C\<^esub> hh \<in> V\<^bsub>C\<^esub>"
+              using c.H.target_integrity by blast
+            have f2: "hh \<in> E\<^bsub>C\<^esub> \<longrightarrow> s\<^bsub>C\<^esub> hh \<in> V\<^bsub>C\<^esub>"
+              using c.H.source_integrity by blast
+            have f3: "hh \<in> E\<^bsub>C\<^esub> \<longrightarrow> \<^bsub>g\<^esub>\<^sub>V (s\<^bsub>C\<^esub> hh) = s\<^bsub>D\<^esub> (\<^bsub>g\<^esub>\<^sub>E hh)"
+              using g.source_preserve by blast
+            have "\<forall>ga. ga \<notin> V\<^bsub>C\<^esub> \<or> v \<noteq> \<^bsub>g\<^esub>\<^sub>V ga"
+              using \<open>v \<notin> \<^bsub>g\<^esub>\<^sub>V ` V\<^bsub>C\<^esub>\<close> by blast
+            then have "e \<noteq> \<^bsub>g\<^esub>\<^sub>E hh \<or> hh \<notin> E\<^bsub>C\<^esub>"
+              using f3 f2 f1 \<open>s\<^bsub>D\<^esub> e = v \<or> t\<^bsub>D\<^esub> e = v\<close> g.target_preserve by fastforce
+            then have "hh \<notin> E\<^bsub>C\<^esub> \<or> e \<noteq> \<^bsub>g\<^esub>\<^sub>E hh"
+              by meson
+            then show ?thesis
+              using \<open>hh \<in> E\<^bsub>C\<^esub> \<and> e = \<^bsub>g\<^esub>\<^sub>E hh \<or> ff \<in> E\<^bsub>B\<^esub> \<and> e = \<^bsub>f\<^esub>\<^sub>E ff\<close> by force
+          qed
+          then have f2: "ff \<in> E\<^bsub>B\<^esub>"
+            by meson
+          have f3: "e = \<^bsub>f\<^esub>\<^sub>E ff"
+            using f1 by blast
+          have f4: "t\<^bsub>B\<^esub> ff \<in> V\<^bsub>B\<^esub>"
+            using f2 b.H.target_integrity by blast
+          have f5: "s\<^bsub>B\<^esub> ff \<in> V\<^bsub>B\<^esub>"
+            using f2 b.H.source_integrity by blast
+          have f6: "\<forall>e. e \<notin> V\<^bsub>B\<^esub> \<or> v \<noteq> \<^bsub>f\<^esub>\<^sub>V e"
+            using \<open>v \<notin> \<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>B\<^esub>\<close> by blast
+          then have f7: "v \<noteq> \<^bsub>f\<^esub>\<^sub>V (t\<^bsub>B\<^esub> ff)"
+            using f4 by blast
+          have f8: "v \<noteq> \<^bsub>f\<^esub>\<^sub>V (s\<^bsub>B\<^esub> ff)"
+            using f6 f5 by blast
+          have f9: "v \<noteq> t\<^bsub>D\<^esub> e"
+            using f7 f3 f2 by (simp add: f.target_preserve)
+          have "s\<^bsub>D\<^esub> e \<noteq> v"
+            using f8 f3 f2 f.source_preserve by fastforce
+          then show ?thesis
+            using f9 \<open>s\<^bsub>D\<^esub> e = v \<or> t\<^bsub>D\<^esub> e = v\<close> by presburger
+        qed
+      qed
+    next
+      case False
+      then show ?thesis 
+      proof -
+        interpret gd: morphism D D' u2
+        proof (unfold_locales, auto simp add: D'_def u2_def)
+          show False if \<open>e \<in> E\<^bsub>D\<^esub>\<close> and \<open>v = s\<^bsub>D\<^esub> e\<close> for e
+            using False that
+            by blast
+        next
+          show False if \<open>e \<in> E\<^bsub>D\<^esub>\<close> and \<open>v = t\<^bsub>D\<^esub> e\<close> for e
+            using False that
+            by blast
+        qed
+
+        have u2: \<open>morphism D D' u2 \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
+        proof (intro conjI)
+          show \<open>morphism D D' u2\<close>
+            using gd.morphism_axioms by assumption
+        next
+          show \<open>\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close>
+            using \<open>v \<notin> \<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>B\<^esub>\<close>
+            by (auto simp add: morph_comp_def f'_def u2_def)
+        next
+          show \<open>\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e\<close>
+            by (simp add: morph_comp_def f'_def u2_def)
+        next
+          show \<open>\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v\<close>
+            using \<open>v \<notin> \<^bsub>g\<^esub>\<^sub>V ` V\<^bsub>C\<^esub>\<close>     
+            by (auto simp add: morph_comp_def g'_def u2_def)
+        next
+          show \<open>\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e\<close>
+            by (simp add: morph_comp_def g'_def u2_def)
+        qed
+          
+        have diff: \<open>(\<exists>e\<in>E\<^bsub>D\<^esub>. \<^bsub>u1\<^esub>\<^sub>E e \<noteq> \<^bsub>u2\<^esub>\<^sub>E e) \<or> (\<exists>v\<in>V\<^bsub>D\<^esub>. \<^bsub>u1\<^esub>\<^sub>V v \<noteq> \<^bsub>u2\<^esub>\<^sub>V v)\<close>
+          by (auto simp add: u1_def u2_def v)
+
+
+        show ?thesis
+          using contr_eq1m[OF universal_property_exist_gen[OF D'.graph_axioms f'.morphism_axioms g'.morphism_axioms tr] u1 u2 diff]
+          by assumption
+
+      qed
+    qed
+  qed
+qed
+
+
+lemma b_surj_imp_g_surj:
+  assumes \<open>surjective_morphism A B b\<close>
+  shows \<open>surjective_morphism C D g\<close>
+proof -
+  interpret b: surjective_morphism A B b
+    using assms by assumption
+
+   show ?thesis
+   proof
+     show \<open>\<exists>v'\<in>V\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>V v' = v\<close> if \<open>v \<in> V\<^bsub>D\<^esub>\<close> for v
+       using that node_commutativity b.surj_nodes c.morph_node_range joint_surjectivity_nodes
+       by (force simp add: morph_comp_def)
+   next
+     show \<open>\<exists>e'\<in>E\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>E e' = e\<close> if \<open>e \<in> E\<^bsub>D\<^esub>\<close> for e
+       using that edge_commutativity b.surj_edges c.morph_edge_range joint_surjectivity_edges
+       by (force simp add: morph_comp_def)
+   qed
+ qed
+     
+
+lemma b_bij_imp_g_bij:
+  assumes \<open>bijective_morphism A B b\<close>
+  shows \<open>bijective_morphism C D g\<close>
+proof -
+  interpret b: bijective_morphism A B b 
+    using assms by assumption
+  thm conjE
+  show ?thesis
+  proof (rule inj_surj_morph_is_bijI)
+    show \<open>injective_morphism C D g\<close>
+      using b_inj_imp_g_inj 
+      by (simp add: b.injective_morphism_axioms)
+  next
+    show \<open>surjective_morphism C D g\<close>
+      using b_surj_imp_g_surj assms
+      by (auto elim: bijective_morphismE)
+  qed 
+qed
 
 theorem uniqueness_po:
   fixes D'
@@ -942,224 +1286,6 @@ next
   qed
 qed
 
-
-
-lemma joint_surjectivity_edges:
-  fixes x
-  assumes \<open>x \<in> E\<^bsub>D\<^esub>\<close>
-  shows \<open>(\<exists>e \<in> E\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>E e = x) \<or> (\<exists>e \<in> E\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>E e = x)\<close> 
-proof (rule ccontr)
-  assume 
-    asm: \<open>\<not> ((\<exists>e\<in>E\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>E e = x) \<or> (\<exists>e\<in>E\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>E e = x))\<close>
-  show False
-  proof -
-
-    obtain e 
-      where e: \<open>e \<in> E\<^bsub>D\<^esub>\<close> 
-        and \<open>e \<notin> \<^bsub>g\<^esub>\<^sub>E ` E\<^bsub>C\<^esub>\<close> 
-        and \<open>e \<notin> \<^bsub>f\<^esub>\<^sub>E ` E\<^bsub>B\<^esub>\<close>
-      using asm assms
-      by fast
-
-    define D' 
-      where \<open>D' \<equiv> \<lparr>nodes  = V\<^bsub>D\<^esub>
-                  ,edges  = E\<^bsub>D\<^esub> <+> {e}
-                  ,source = case_sum s\<^bsub>D\<^esub> s\<^bsub>D\<^esub>
-                  ,target = case_sum t\<^bsub>D\<^esub> t\<^bsub>D\<^esub>
-                  ,node_label = l\<^bsub>D\<^esub>
-                  ,edge_label = case_sum m\<^bsub>D\<^esub> m\<^bsub>D\<^esub>\<rparr>\<close>
-
-    interpret D': graph D'
-      by standard
-        (auto simp add: D'_def e f.H.finite_nodes f.H.finite_edges f.H.source_integrity f.H.target_integrity)
-
-    define fd :: "('i, 'i, 'j, 'j+'j) pre_morph" and gd :: "('i, 'i, 'j, 'j+'j) pre_morph"
-      where \<open>fd \<equiv> \<lparr>node_map = id, edge_map = Inl\<rparr>\<close>
-        and \<open>gd \<equiv> \<lparr>node_map = id, edge_map = \<lambda>x. if x = e then Inr e else Inl x\<rparr>\<close>
-
-    interpret fd: morphism D D' fd
-      by standard (auto simp add: D'_def fd_def)
-
-    interpret gd: morphism D D' gd
-      by standard (auto simp add: D'_def gd_def)
-
-    define f' :: "('e, 'i, 'f, 'j + 'j) pre_morph" and g' :: "('g, 'i, 'h, 'j + 'j) pre_morph"
-      where \<open>f' = \<lparr>node_map = \<^bsub>f\<^esub>\<^sub>V, edge_map = Inl \<circ> \<^bsub>f\<^esub>\<^sub>E\<rparr>\<close> and
-        \<open>g' = \<lparr>node_map = \<^bsub>g\<^esub>\<^sub>V, edge_map = Inl \<circ> \<^bsub>g\<^esub>\<^sub>E\<rparr>\<close>
-
-    interpret f': morphism B D' f'
-      by standard 
-        (auto simp add: D'_def f'_def f.morph_edge_range f.morph_node_range 
-          f.source_preserve f.target_preserve f.label_preserve f.mark_preserve)
-
-    interpret g': morphism C D' g'
-      by standard 
-        (auto simp add: D'_def g'_def g.morph_edge_range g.morph_node_range 
-          g.source_preserve g.target_preserve g.label_preserve g.mark_preserve)
-
-    have tr: \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e\<close>
-      using node_commutativity edge_commutativity
-      by (auto simp add: morph_comp_def f'_def g'_def)
-
-    have u1: \<open>morphism D D' fd \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>fd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
-    proof (intro conjI)
-      show \<open>morphism D D' fd\<close>
-        using fd.morphism_axioms by assumption
-    qed (auto simp add: morph_comp_def f'_def fd_def g'_def )
-   
-    have u2: \<open>morphism D D' gd \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
-    proof (intro conjI)
-      show \<open>morphism D D' gd\<close>
-        using gd.morphism_axioms by assumption
-    next
-      show \<open>\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close>
-        by (simp add: morph_comp_def f'_def gd_def)
-    next
-      show \<open>\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e\<close>
-        using \<open>e \<notin> \<^bsub>f\<^esub>\<^sub>E ` E\<^bsub>B\<^esub>\<close>
-        by (auto simp add: morph_comp_def f'_def gd_def)
-    next
-      show \<open>\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v\<close> 
-        by (simp add: morph_comp_def gd_def g'_def)
-    next
-      show \<open>\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>gd \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e\<close>
-        using \<open>e \<notin> \<^bsub>g\<^esub>\<^sub>E ` E\<^bsub>C\<^esub>\<close>   
-        by (auto simp add: morph_comp_def g'_def gd_def)
-    qed
-     
-    have diff: \<open>(\<exists>e\<in>E\<^bsub>D\<^esub>. \<^bsub>fd\<^esub>\<^sub>E e \<noteq> \<^bsub>gd\<^esub>\<^sub>E e) \<or> (\<exists>v\<in>V\<^bsub>D\<^esub>. \<^bsub>fd\<^esub>\<^sub>V v \<noteq> \<^bsub>gd\<^esub>\<^sub>V v)\<close>
-      by (auto simp add: fd_def gd_def e)
-
-
-    show ?thesis
-      using contr_eq1m[OF universal_property_exist_gen[OF D'.graph_axioms f'.morphism_axioms g'.morphism_axioms tr] u1 u2 diff]
-      by assumption
-  qed
-qed
-
-
-
-
-lemma joint_surjectivity_nodes:
-  fixes x
-  assumes \<open>x \<in> V\<^bsub>D\<^esub>\<close>
-  shows \<open>(\<exists>v \<in> V\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>V v = x) \<or> (\<exists>v \<in> V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = x)\<close> 
-proof (rule ccontr)
-
-  assume asm: \<open>\<not> ((\<exists>v\<in>V\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>V v = x) \<or> (\<exists>v\<in>V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = x))\<close>
-  show False
-  proof -
-
-    obtain v
-      where v: \<open>v \<in> V\<^bsub>D\<^esub>\<close> 
-        and \<open>v \<notin> \<^bsub>g\<^esub>\<^sub>V ` V\<^bsub>C\<^esub>\<close> 
-        and \<open>v \<notin> \<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>B\<^esub>\<close>
-      using asm assms
-      by fast
-
-    define D' 
-      where \<open>D' \<equiv> \<lparr>nodes  = V\<^bsub>D\<^esub> <+> {v}
-                  ,edges  = E\<^bsub>D\<^esub>
-                  ,source = Inl \<circ> s\<^bsub>D\<^esub>
-                  ,target = Inl \<circ> t\<^bsub>D\<^esub>
-                  ,node_label = case_sum l\<^bsub>D\<^esub> l\<^bsub>D\<^esub>
-                  ,edge_label = m\<^bsub>D\<^esub>\<rparr>\<close>
-
-    interpret D': graph D'
-      by standard
-        (auto simp add: D'_def v f.H.finite_nodes f.H.finite_edges f.H.source_integrity f.H.target_integrity)
-
-    define u1 :: "('i, 'i+'i, 'j, 'j) pre_morph" and u2 :: "('i, 'i+'i, 'j, 'j) pre_morph"
-      where \<open>u1 \<equiv> \<lparr>node_map = Inl, edge_map = id\<rparr>\<close>
-        and \<open>u2 \<equiv> \<lparr>node_map = \<lambda>x. if x = v then Inr x else Inl x, edge_map = id\<rparr>\<close>
-
-    interpret fd: morphism D D' u1
-      by standard (auto simp add: D'_def u1_def)
-
-    define f' :: "('e, 'i+'i, 'f, 'j) pre_morph" and g' :: "('g, 'i+'i, 'h, 'j) pre_morph"
-      where \<open>f' = \<lparr>node_map = Inl \<circ> \<^bsub>f\<^esub>\<^sub>V, edge_map = \<^bsub>f\<^esub>\<^sub>E\<rparr>\<close> and
-        \<open>g' = \<lparr>node_map = Inl \<circ> \<^bsub>g\<^esub>\<^sub>V, edge_map = \<^bsub>g\<^esub>\<^sub>E\<rparr>\<close>
-
-    interpret f': morphism B D' f'
-      by standard 
-        (auto simp add: D'_def f'_def f.morph_edge_range f.morph_node_range 
-          f.source_preserve f.target_preserve f.label_preserve f.mark_preserve)
-
-    interpret g': morphism C D' g'
-      by standard 
-        (auto simp add: D'_def g'_def g.morph_edge_range g.morph_node_range 
-          g.source_preserve g.target_preserve g.label_preserve g.mark_preserve)
-
-    have tr: \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close> \<open>\<forall>e\<in>E\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e\<close>
-      using node_commutativity edge_commutativity
-      by (auto simp add: morph_comp_def f'_def g'_def)
-
-    have u1: \<open>morphism D D' u1 \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>u1 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
-    proof (intro conjI)
-      show \<open>morphism D D' u1\<close>
-        using fd.morphism_axioms  by assumption
-    qed (auto simp add: morph_comp_def f'_def u1_def g'_def)
-
-    show ?thesis
-    proof (cases \<open>\<exists>x \<in> E\<^bsub>D\<^esub>. (s\<^bsub>D\<^esub> x = v \<or> t\<^bsub>D\<^esub> x = v)\<close>)
-      case True
-      then show ?thesis 
-      proof -
-        obtain e where \<open>e \<in> E\<^bsub>D\<^esub>\<close> \<open>s\<^bsub>D\<^esub> e = v \<or> t\<^bsub>D\<^esub> e = v\<close>
-          using True
-          by blast
-
-        show ?thesis
-            by (smt (verit) \<open>e \<in> E\<^bsub>D\<^esub>\<close> \<open>s\<^bsub>D\<^esub> e = v \<or> t\<^bsub>D\<^esub> e = v\<close> \<open>v \<notin> \<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>B\<^esub>\<close> \<open>v \<notin> \<^bsub>g\<^esub>\<^sub>V ` V\<^bsub>C\<^esub>\<close> b.H.graph_axioms c.H.graph_axioms f.source_preserve f.target_preserve g.morphism_axioms graph.source_integrity graph.target_integrity imageI morphism.source_preserve morphism.target_preserve pushout_diagram.joint_surjectivity_edges pushout_diagram_axioms)
-      qed
-    next
-      case False
-      then show ?thesis 
-      proof -
-        interpret gd: morphism D D' u2
-        proof (unfold_locales, auto simp add: D'_def u2_def)
-          show False if \<open>e \<in> E\<^bsub>D\<^esub>\<close> and \<open>v = s\<^bsub>D\<^esub> e\<close> for e
-            using False that
-            by blast
-        next
-          show False if \<open>e \<in> E\<^bsub>D\<^esub>\<close> and \<open>v = t\<^bsub>D\<^esub> e\<close> for e
-            using False that
-            by blast
-        qed
-
-        have u2: \<open>morphism D D' u2 \<and> (\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e)\<close>
-        proof (intro conjI)
-          show \<open>morphism D D' u2\<close>
-            using gd.morphism_axioms by assumption
-        next
-          show \<open>\<forall>v\<in>V\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close>
-            using \<open>v \<notin> \<^bsub>f\<^esub>\<^sub>V ` V\<^bsub>B\<^esub>\<close>
-            by (auto simp add: morph_comp_def f'_def u2_def)
-        next
-          show \<open>\<forall>e\<in>E\<^bsub>B\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e\<close>
-            by (simp add: morph_comp_def f'_def u2_def)
-        next
-          show \<open>\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>V v = \<^bsub>g'\<^esub>\<^sub>V v\<close>
-            using \<open>v \<notin> \<^bsub>g\<^esub>\<^sub>V ` V\<^bsub>C\<^esub>\<close>     
-            by (auto simp add: morph_comp_def g'_def u2_def)
-        next
-          show \<open>\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>u2 \<circ>\<^sub>\<rightarrow> g\<^esub>\<^sub>E e = \<^bsub>g'\<^esub>\<^sub>E e\<close>
-            by (simp add: morph_comp_def g'_def u2_def)
-        qed
-          
-        have diff: \<open>(\<exists>e\<in>E\<^bsub>D\<^esub>. \<^bsub>u1\<^esub>\<^sub>E e \<noteq> \<^bsub>u2\<^esub>\<^sub>E e) \<or> (\<exists>v\<in>V\<^bsub>D\<^esub>. \<^bsub>u1\<^esub>\<^sub>V v \<noteq> \<^bsub>u2\<^esub>\<^sub>V v)\<close>
-          by (auto simp add: u1_def u2_def v)
-
-
-        show ?thesis
-          using contr_eq1m[OF universal_property_exist_gen[OF D'.graph_axioms f'.morphism_axioms g'.morphism_axioms tr] u1 u2 diff]
-          by assumption
-
-      qed
-    qed
-  qed
-qed
-
 end
 
 (* Fundamentals of Alg. Graph Transformation
@@ -1447,7 +1573,6 @@ lemma pushout_decomposition:
     "1+2":  \<open>pushout_diagram A E C F (e \<circ>\<^sub>\<rightarrow> f) g  e'' (e' \<circ>\<^sub>\<rightarrow> f')\<close> and
     "2cv": \<open>\<And>v. v \<in> V\<^bsub>B\<^esub> \<Longrightarrow> \<^bsub>e'' \<circ>\<^sub>\<rightarrow> e\<^esub>\<^sub>V v = \<^bsub>e' \<circ>\<^sub>\<rightarrow> g'\<^esub>\<^sub>V v\<close> and
     "2ce": \<open>\<And>ea. ea \<in> E\<^bsub>B\<^esub> \<Longrightarrow> \<^bsub>e'' \<circ>\<^sub>\<rightarrow> e\<^esub>\<^sub>E ea = \<^bsub>e' \<circ>\<^sub>\<rightarrow> g'\<^esub>\<^sub>E ea\<close>
-
   shows \<open>pushout_diagram B E D F e g' e'' e'\<close>
 proof -
   interpret po1: pushout_diagram A B C D f g g' f'
@@ -1717,4 +1842,6 @@ proof -
      qed
    qed
  qed
+
+
 end

@@ -324,13 +324,11 @@ shows \<open>(\<exists>a1 \<in> V\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1
 proof
   show \<open>\<exists>a1\<in>V\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x\<close>
     using assms 
-    apply (auto simp add: h_def c_def)
-    by (metis (no_types, opaque_lifting) Inr_Inl_False image_iff)
+    by (auto simp add: h_def c_def) (metis (no_types, opaque_lifting) Inr_Inl_False image_iff)
 next
   show \<open>\<exists>a2\<in>V\<^bsub>K\<^esub>. \<^bsub>d\<^esub>\<^sub>V a2 = y\<close>
     using assms inv_into_f_f[OF r.inj_nodes]
-    apply (auto simp add: h_def c_def)
-    by (metis (no_types, lifting) Inl_Inr_False Inl_inject image_iff)
+    by (auto simp add: h_def c_def) (metis (no_types, opaque_lifting) Inl_Inr_False Inl_inject image_iff)
 qed
 
 lemma reduced_chain_condition_edges:
@@ -343,13 +341,11 @@ shows \<open>(\<exists>a1 \<in> E\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1
 proof
   show \<open>\<exists>a1\<in>E\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x\<close>
     using assms 
-    apply (auto simp add: h_def c_def)
-    by (metis (no_types, opaque_lifting) Inr_Inl_False image_iff)
+    by (auto simp add: h_def c_def) (metis (no_types, opaque_lifting) Inr_Inl_False image_iff)
 next
   show \<open>\<exists>a2\<in>E\<^bsub>K\<^esub>. \<^bsub>d\<^esub>\<^sub>E a2 = y\<close>
     using assms 
-    apply (auto simp add: h_def c_def)
-    by (metis (no_types, lifting) Inl_Inr_False Inl_inject image_iff inv_into_f_f r.inj_edges)
+    by (auto simp add: h_def c_def) (metis (no_types, lifting) Inl_Inr_False Inl_inject image_iff inv_into_f_f r.inj_edges)
 qed 
 
 
@@ -881,8 +877,6 @@ proof
 
 
     (* top face *)
- 
-
     interpret top: pushout_diagram A A fr.A C' idM h c' fr.c
     proof -
       interpret bottom: pullback_diagram A B C D b c f g
