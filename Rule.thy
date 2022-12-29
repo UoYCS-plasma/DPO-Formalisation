@@ -1,22 +1,22 @@
 theory Rule
-  imports Graph Morphism
+  imports Morphism
 begin
 
 locale rule =
-  l: inclusion_morphism 
-    V\<^sub>K E\<^sub>K s\<^sub>K s'\<^sub>K t\<^sub>K t'\<^sub>K l\<^sub>K l'\<^sub>K m\<^sub>K m'\<^sub>K 
-    V\<^sub>L E\<^sub>L s\<^sub>L s'\<^sub>L t\<^sub>L t'\<^sub>L l\<^sub>L l'\<^sub>L m\<^sub>L m'\<^sub>L 
-    b\<^sub>V b'\<^sub>V b\<^sub>E b'\<^sub>E +
-  r: inclusion_morphism     
-    V\<^sub>K E\<^sub>K s\<^sub>K s'\<^sub>K t\<^sub>K t'\<^sub>K l\<^sub>K l'\<^sub>K m\<^sub>K m'\<^sub>K 
-    V\<^sub>R E\<^sub>R s\<^sub>R s'\<^sub>R t\<^sub>R t'\<^sub>R l\<^sub>R l'\<^sub>R m\<^sub>R m'\<^sub>R 
-    q\<^sub>V q'\<^sub>V q\<^sub>E q'\<^sub>E
-  for 
-    V\<^sub>K E\<^sub>K s\<^sub>K s'\<^sub>K t\<^sub>K t'\<^sub>K l\<^sub>K l'\<^sub>K m\<^sub>K m'\<^sub>K 
-    V\<^sub>L E\<^sub>L s\<^sub>L s'\<^sub>L t\<^sub>L t'\<^sub>L l\<^sub>L l'\<^sub>L m\<^sub>L m'\<^sub>L
-    V\<^sub>R E\<^sub>R s\<^sub>R s'\<^sub>R t\<^sub>R t'\<^sub>R l\<^sub>R l'\<^sub>R m\<^sub>R m'\<^sub>R
-    b\<^sub>V b'\<^sub>V b\<^sub>E b'\<^sub>E 
-    q\<^sub>V q'\<^sub>V q\<^sub>E q'\<^sub>E
+  k: inclusion_morphism K L +
+  r: inclusion_morphism K R 
+  for L K R
+begin
 
+lemma k_subset_l:
+  \<open>V\<^bsub>K\<^esub> \<subseteq> V\<^bsub>L\<^esub>\<close> and \<open>E\<^bsub>K\<^esub> \<subseteq> E\<^bsub>L\<^esub>\<close>
+  by (simp_all add: subset_iff)
+
+lemma k_subset_r:
+  \<open>V\<^bsub>K\<^esub> \<subseteq> V\<^bsub>R\<^esub>\<close> and \<open>E\<^bsub>K\<^esub> \<subseteq> E\<^bsub>R\<^esub>\<close>
+  by auto  
+end
+
+notation rule ("_\<leftarrow>_\<rightarrow>_")
 
 end

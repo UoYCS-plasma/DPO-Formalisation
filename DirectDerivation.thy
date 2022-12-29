@@ -1,39 +1,23 @@
 theory DirectDerivation
-  imports Rule Deletion Gluing
+  imports Rule Gluing Deletion
 begin
- 
+
 locale direct_derivation =
-  r: rule 
-    V\<^sub>K E\<^sub>K s\<^sub>K s'\<^sub>K t\<^sub>K t'\<^sub>K l\<^sub>K l'\<^sub>K m\<^sub>K m'\<^sub>K 
-    V\<^sub>L E\<^sub>L s\<^sub>L s'\<^sub>L t\<^sub>L t'\<^sub>L l\<^sub>L l'\<^sub>L m\<^sub>L m'\<^sub>L 
-    V\<^sub>R E\<^sub>R s\<^sub>R s'\<^sub>R t\<^sub>R t'\<^sub>R l\<^sub>R l'\<^sub>R m\<^sub>R m'\<^sub>R
-    b\<^sub>V b'\<^sub>V b\<^sub>E b'\<^sub>E 
-    q\<^sub>V q'\<^sub>V q\<^sub>E q'\<^sub>E +
+  r: rule L K R +
+  d: deletion K G L g idM +
+  g: gluing K d.D R g idM for G L K R g
 
-  G: graph V\<^sub>G E\<^sub>G s\<^sub>G s'\<^sub>G t\<^sub>G t'\<^sub>G l\<^sub>G l'\<^sub>G m\<^sub>G m'\<^sub>G +
+begin
 
-  k: injective_morphism 
-    V\<^sub>L E\<^sub>L s\<^sub>L s'\<^sub>L t\<^sub>L t'\<^sub>L l\<^sub>L l'\<^sub>L m\<^sub>L m'\<^sub>L 
-    V\<^sub>G E\<^sub>G s\<^sub>G s'\<^sub>G t\<^sub>G t'\<^sub>G l\<^sub>G l'\<^sub>G m\<^sub>G m'\<^sub>G
-    f\<^sub>V f'\<^sub>V f\<^sub>E f'\<^sub>E +
+corollary 
+    \<open>pushout_diagram K L d.D G idM d.d g d.c'\<close> and \<open>pushout_diagram K R d.D g.H idM g g.h g.c\<close> 
+  using 
+    d.po.pushout_diagram_axioms
+    g.po.pushout_diagram_axioms
+  by simp_all
 
-  d: deletion 
-     V\<^sub>L E\<^sub>L s\<^sub>L s'\<^sub>L t\<^sub>L t'\<^sub>L l\<^sub>L l'\<^sub>L m\<^sub>L m'\<^sub>L
-     V\<^sub>K E\<^sub>K s\<^sub>K s'\<^sub>K t\<^sub>K t'\<^sub>K l\<^sub>K l'\<^sub>K m\<^sub>K m'\<^sub>K 
-     V\<^sub>G E\<^sub>G s\<^sub>G s'\<^sub>G t\<^sub>G t'\<^sub>G l\<^sub>G l'\<^sub>G m\<^sub>G m'\<^sub>G 
-     f\<^sub>V f'\<^sub>V f\<^sub>E f'\<^sub>E +
+end
 
-  g: gluing
-    V\<^sub>K E\<^sub>K s\<^sub>K s'\<^sub>K t\<^sub>K t'\<^sub>K l\<^sub>K l'\<^sub>K m\<^sub>K m'\<^sub>K
-    V\<^sub>R E\<^sub>R s\<^sub>R s'\<^sub>R t\<^sub>R t'\<^sub>R l\<^sub>R l'\<^sub>R m\<^sub>R m'\<^sub>R
-    d.V d.E d.s _ d.t _ d.l _ d.m _
-
-  for 
-    V\<^sub>K E\<^sub>K s\<^sub>K s'\<^sub>K t\<^sub>K t'\<^sub>K l\<^sub>K l'\<^sub>K m\<^sub>K m'\<^sub>K 
-    V\<^sub>L E\<^sub>L s\<^sub>L s'\<^sub>L t\<^sub>L t'\<^sub>L l\<^sub>L l'\<^sub>L m\<^sub>L m'\<^sub>L 
-    V\<^sub>R E\<^sub>R s\<^sub>R s'\<^sub>R t\<^sub>R t'\<^sub>R l\<^sub>R l'\<^sub>R m\<^sub>R m'\<^sub>R 
-    b\<^sub>V b'\<^sub>V b\<^sub>E b'\<^sub>E 
-    q\<^sub>V q'\<^sub>V q\<^sub>E q'\<^sub>E
-    V\<^sub>G E\<^sub>G s\<^sub>G s'\<^sub>G t\<^sub>G t'\<^sub>G l\<^sub>G l'\<^sub>G m\<^sub>G m'\<^sub>G
+notation direct_derivation ("_ \<Rightarrow>\<^bsub>_ \<leftarrow> _ \<rightarrow> _, _\<^esub>")
 
 end
