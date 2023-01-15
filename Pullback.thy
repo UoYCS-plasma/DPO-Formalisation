@@ -1268,5 +1268,4 @@ proof -
   qed
 qed
 qed
-
 end

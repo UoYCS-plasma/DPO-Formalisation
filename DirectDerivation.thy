@@ -6,8 +6,6 @@ begin
 (* GRAT PDF P. 114 *)
 locale direct_derivation = 
   r: rule r +
- (*  m: injective_morphism "interf r" D m  +
-  *)
   g: injective_morphism "lhs r" G g  +
   po1: pushout_diagram "interf r" "lhs r" D G idM m g c +
   po2: pushout_diagram "interf r" "rhs r" D H idM m f h
@@ -44,7 +42,7 @@ proof -
       using po3.edge_commutativity g.inj_edges r.k.edges_g_in_h
       by (simp add: morph_comp_def inj_on_def)
   qed
-  thm po1.uniqueness_pc
+
   have u:\<open>\<exists>u. bijective_morphism D D' u\<close>
     using po1.uniqueness_pc[OF r.k.injective_morphism_axioms m.injective_morphism_axioms 
                                po3.c.H.graph_axioms m'.injective_morphism_axioms
@@ -64,33 +62,38 @@ proof -
     using u by assumption
 
   have \<open>\<exists>u. bijective_morphism H H' u\<close>
-    by (meson bij_comp_bij_is_bij bijective_morphism.ex_inv po2.b_bij_imp_g_bij po4.b_bij_imp_g_bij r.r.bijective_morphism_axioms u)
+  proof-
+    have \<open>\<exists>x. morphism (rhs r) H x\<close>
+    thm po4.universal_property_exist_gen[OF po2.f.H.graph_axioms]
+
+
+
 
   show ?thesis
     using \<open>\<exists>u. bijective_morphism H H' u\<close> u by blast
     
 qed
 
-
 end
 
 locale direct_derivation_construction =
   r: rule r +
   d: deletion "interf r" G "lhs r" g idM +
-  g: gluing "interf r" d.D "rhs r" g idM for G r g H +
-assumes \<open>H = g.H\<close>
+  g: gluing "interf r" d.D "rhs r" d.d idM for G r g H +
+assumes a: \<open>H = g.H\<close>
 begin
 
 corollary
-    \<open>pushout_diagram (interf r) (lhs r) d.D G idM d.d g d.c'\<close> and \<open>pushout_diagram (interf r) (rhs r) d.D g.H idM g g.h g.c\<close> 
+    \<open>pushout_diagram (interf r) (lhs r) d.D G idM d.d g d.c'\<close> and \<open>pushout_diagram (interf r) (rhs r) d.D g.H idM d.d g.h g.c\<close> 
   using 
     d.po.pushout_diagram_axioms
     g.po.pushout_diagram_axioms
   by simp_all
 
 
-(* sublocale direct_derivation r G g d.D d.d d.c' g.H g.h g.c ..
- *)
+sublocale direct_derivation:
+  direct_derivation r G g d.D d.d d.c' g.H g.h g.c ..
+  
 end
 
 end

@@ -336,8 +336,4 @@ definition lift_morph :: "nmorph \<Rightarrow> ('a::countable,nat,'b::countable,
 "lift_morph f \<equiv> \<lparr>node_map = \<lambda>v. \<^bsub>f\<^esub>\<^sub>V (to_nat v), edge_map = \<lambda>e. \<^bsub>f\<^esub>\<^sub>E (to_nat e)\<rparr>"
 
 
-(* lemma abc:
-  shows \<open>morphism G H f \<longleftrightarrow> morphism (to_ngraph G) (to_ngraph H) (lift_morph (to_nmorph f))\<close>
-  sorry *)
-
 end
