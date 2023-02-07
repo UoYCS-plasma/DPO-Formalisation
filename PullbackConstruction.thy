@@ -349,7 +349,7 @@ qed
 
 end
 
-
+(* 
 
 lemma pushout_pullback_decomposition:
   assumes 
@@ -384,6 +384,6 @@ proof -
 
   show ?thesis
     sorry
-qed
+qed *)
 end
 

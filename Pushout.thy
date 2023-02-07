@@ -285,8 +285,6 @@ proof -
   qed
 qed
 
-
-
 lemma b_inj_imp_g_inj:
   assumes \<open>injective_morphism A B b\<close>
   shows \<open>injective_morphism C D g\<close>
@@ -743,6 +741,33 @@ proof -
       using b_surj_imp_g_surj assms
       by (auto elim: bijective_morphismE)
   qed 
+qed
+
+lemma b_f_inj_imp_c_inj:
+  assumes 
+    b: \<open>injective_morphism A B b\<close> and
+    f: \<open>injective_morphism B D f\<close>
+  shows \<open>injective_morphism A C c\<close>
+proof -
+  interpret b: injective_morphism A B b
+    using b by assumption
+  interpret f: injective_morphism B D f
+    using f by assumption
+
+  interpret g: injective_morphism C D g
+    using b_inj_imp_g_inj[OF b]
+    by assumption
+
+  show ?thesis
+  proof
+    show \<open>inj_on \<^bsub>c\<^esub>\<^sub>V V\<^bsub>A\<^esub>\<close>
+      using node_commutativity f.inj_nodes b.inj_nodes g.inj_nodes
+      by (auto simp add: morph_comp_def inj_on_def b.morph_node_range)
+  next
+    show \<open>inj_on \<^bsub>c\<^esub>\<^sub>E E\<^bsub>A\<^esub>\<close> 
+      using edge_commutativity f.inj_edges b.inj_edges g.inj_edges
+      by (auto simp add: morph_comp_def inj_on_def b.morph_edge_range)
+  qed
 qed
 
 theorem uniqueness_po:
@@ -1288,66 +1313,21 @@ next
   qed
 qed
 
-
-theorem uniqueness_po_generalised:
-  fixes D' C' u
-  assumes 
-    D': \<open>graph D'\<close> and 
-    f': \<open>morphism B D' f'\<close> and 
-    g': \<open>morphism C' D' g'\<close> and
-    u: \<open>bijective_morphism C C' u\<close> and
-    po2: \<open>pushout_diagram  A B C' D' b c' f' g'\<close>
-  shows \<open>\<exists>x. bijective_morphism D D' x\<close>
-proof -
-  interpret D': graph D'
-    using D' by assumption
-  interpret f': morphism B D' f'
-    using f' by assumption
-  interpret g': morphism C' D' g'
-    using g' by assumption
-
-  interpret u: bijective_morphism C C' u
-    using u by assumption
-
-  obtain uinv where uinv:\<open>bijective_morphism C' C uinv\<close>
-    and \<open>\<forall>v\<in>V\<^bsub>C\<^esub>. \<^bsub>uinv \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = v\<close> \<open>\<forall>e\<in>E\<^bsub>C\<^esub>. \<^bsub>uinv \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = e\<close> \<open>\<forall>v\<in>V\<^bsub>C'\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> uinv\<^esub>\<^sub>V v = v\<close> \<open>\<forall>e\<in>E\<^bsub>C'\<^esub>. \<^bsub>u \<circ>\<^sub>\<rightarrow> uinv\<^esub>\<^sub>E e = e\<close>
-  using u.ex_inv 
-  by blast
-
-  interpret uinv: bijective_morphism C' C uinv
-    using uinv by assumption
-
-  interpret po2: pushout_diagram A B C' D' b c' f' g'
-    using po2 by assumption
-
-  interpret g'u: morphism C D' "g' \<circ>\<^sub>\<rightarrow> u"
-    using wf_morph_comp[OF u.morphism_axioms g']
-    by assumption
-
-  have \<open>\<^bsub>g' \<circ>\<^sub>\<rightarrow> u \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v = \<^bsub>g' \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>A\<^esub>\<close> for v
-    using that node_commutativity po2.node_commutativity
-    apply (auto simp add: morph_comp_def)
-    sledgehammer
-
-  have a: \<open>\<forall>v\<in>V\<^bsub>A\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g' \<circ>\<^sub>\<rightarrow> u \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close>
-    using node_commutativity po2.node_commutativity
-    apply (auto simp add: morph_comp_def)
-    sorry
-    obtain u'' where \<open>morphism D D' u''\<close>
-        using universal_property_exist_gen[OF D' f' g'u.morphism_axioms ]
-
-  
-  interpret morphism C' D "uinv \<circ>\<^sub>\<rightarrow> g'"
-  obtain u' where \<open>morphism D' D u'\<close>
-   
-    using po2.universal_property_exist_gen[OF f.H.graph_axioms f.morphism_axioms ]
-    
-  obtain u'' where \<open>morphism D D' u''\<close>
-    sorry
-
-
-
 end
+(* 
+lemma fun_algrtr_4_27_po:
+  fixes A B f
+  assumes f:\<open>morphism A B f\<close>
+  shows \<open>pushout_diagram A B A B f idM idM f\<close>
+proof -
+  interpret f: morphism A B f
+    using f by assumption
+
+  show ?thesis
+    sorry
+qed
+ *)
+
 
 (* Fundamentals of Alg. Graph Transformation
    Pushout composition

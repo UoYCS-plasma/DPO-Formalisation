@@ -861,7 +861,8 @@ proof
   qed
 
 
-    interpret back_right: pullback_diagram A fr.A A C h idM fr.b c
+
+  interpret back_right: pullback_diagram A fr.A A C h idM fr.b c
     proof -
     have \<open>\<^bsub>fr.b \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v = \<^bsub>c \<circ>\<^sub>\<rightarrow> idM\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>A\<^esub>\<close> for v
       using that

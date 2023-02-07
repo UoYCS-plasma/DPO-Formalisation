@@ -812,6 +812,7 @@ qed
 
 end
 
+
 lemma fun_algrtr_4_7_2:
   fixes C A m
   assumes \<open>injective_morphism C A m\<close>
