@@ -17,5 +17,7 @@ session "DPO-Formal" = HOL +
     Deletion
     DirectDerivation
 
+    LocalChurchRosser
+
   document_files
     "root.tex"

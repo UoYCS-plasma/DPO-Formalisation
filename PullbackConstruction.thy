@@ -349,5 +349,41 @@ qed
 
 end
 
+(* 
+
+lemma pushout_pullback_decomposition:
+  assumes 
+    "1+2": \<open>pushout_diagram A E C F (r \<circ>\<^sub>\<rightarrow> k) l v (w \<circ>\<^sub>\<rightarrow> u)\<close> and
+    "2pb": \<open>pullback_diagram B E D F r s v w\<close> and
+        w: \<open>injective_morphism D F w\<close> and
+        k: \<open>injective_morphism A B k\<close>
+  shows \<open> pushout_diagram A B C D k l s u 
+        \<and> pullback_diagram A B C D k l s u 
+        \<and> pushout_diagram B E D F r s v w\<close>
+proof -
+  interpret "1+2": pushout_diagram A E C F "r \<circ>\<^sub>\<rightarrow> k" l v "w \<circ>\<^sub>\<rightarrow> u"
+    using "1+2" by assumption
+
+  interpret "2pb": pullback_diagram B E D F r s v w
+    using "2pb" by assumption
+
+  interpret w: injective_morphism D F w
+    using w by assumption
+
+  interpret k: injective_morphism A B k
+    using k by assumption
+
+  (* proof  https://link.springer.com/content/pdf/10.1007/3-540-31188-2.pdf?pdf=button 
+      PDF P. 104
+  *)
+  interpret r: injective_morphism B E r
+    using "2pb.g_inj_imp_b_inj"[OF w] by assumption
+
+  interpret "rk": injective_morphism A E "r \<circ>\<^sub>\<rightarrow> k"
+    using inj_comp_inj[OF k r.injective_morphism_axioms] by assumption
+
+  show ?thesis
+    sorry
+qed *)
 end
 

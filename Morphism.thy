@@ -394,18 +394,23 @@ assumes
 abbreviation idM where \<open>idM \<equiv> \<lparr>node_map = id, edge_map = id\<rparr>\<close>
 
 locale inclusion_morphism =
-  bijective_morphism G H idM for G H
+  injective_morphism G H idM for G H
 begin
 
-lemma nodes_g_in_h[iff]:
-  \<open>x \<in> V\<^bsub>G\<^esub> \<longleftrightarrow> x \<in> V\<^bsub>H\<^esub>\<close>
-  using bij_betw_imp_surj_on bij_nodes 
-  by fastforce
+lemma subset_nodes: \<open>V\<^bsub>G\<^esub> \<subseteq> V\<^bsub>H\<^esub>\<close>
+  using morph_node_range by force
 
-lemma edges_g_in_h[iff]:
-  \<open>x \<in> E\<^bsub>G\<^esub> \<longleftrightarrow> x \<in> E\<^bsub>H\<^esub>\<close>
-  using bij_betw_imp_surj_on bij_edges
-  by fastforce
+lemma subset_edges: \<open>E\<^bsub>G\<^esub> \<subseteq> E\<^bsub>H\<^esub>\<close>
+  using morph_edge_range by force
+
+lemma nodes_g_in_h:
+  \<open>x \<in> V\<^bsub>G\<^esub> \<longrightarrow> x \<in> V\<^bsub>H\<^esub>\<close>
+  using morph_node_range by auto
+ 
+lemma edges_g_in_h:
+  \<open>x \<in> E\<^bsub>G\<^esub> \<longrightarrow> x \<in> E\<^bsub>H\<^esub>\<close>
+  using morph_edge_range by auto
+
 
 end
 

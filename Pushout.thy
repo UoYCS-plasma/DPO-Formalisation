@@ -99,6 +99,8 @@ next
   qed
 qed
 
+      
+
 lemma universal_property_exist_gen:
   fixes D'
   assumes \<open>graph D'\<close> \<open>morphism B D' x\<close> \<open>morphism C D' y\<close>
@@ -282,8 +284,6 @@ proof -
     qed
   qed
 qed
-
-
 
 lemma b_inj_imp_g_inj:
   assumes \<open>injective_morphism A B b\<close>
@@ -741,6 +741,33 @@ proof -
       using b_surj_imp_g_surj assms
       by (auto elim: bijective_morphismE)
   qed 
+qed
+
+lemma b_f_inj_imp_c_inj:
+  assumes 
+    b: \<open>injective_morphism A B b\<close> and
+    f: \<open>injective_morphism B D f\<close>
+  shows \<open>injective_morphism A C c\<close>
+proof -
+  interpret b: injective_morphism A B b
+    using b by assumption
+  interpret f: injective_morphism B D f
+    using f by assumption
+
+  interpret g: injective_morphism C D g
+    using b_inj_imp_g_inj[OF b]
+    by assumption
+
+  show ?thesis
+  proof
+    show \<open>inj_on \<^bsub>c\<^esub>\<^sub>V V\<^bsub>A\<^esub>\<close>
+      using node_commutativity f.inj_nodes b.inj_nodes g.inj_nodes
+      by (auto simp add: morph_comp_def inj_on_def b.morph_node_range)
+  next
+    show \<open>inj_on \<^bsub>c\<^esub>\<^sub>E E\<^bsub>A\<^esub>\<close> 
+      using edge_commutativity f.inj_edges b.inj_edges g.inj_edges
+      by (auto simp add: morph_comp_def inj_on_def b.morph_edge_range)
+  qed
 qed
 
 theorem uniqueness_po:
@@ -1287,6 +1314,20 @@ next
 qed
 
 end
+(* 
+lemma fun_algrtr_4_27_po:
+  fixes A B f
+  assumes f:\<open>morphism A B f\<close>
+  shows \<open>pushout_diagram A B A B f idM idM f\<close>
+proof -
+  interpret f: morphism A B f
+    using f by assumption
+
+  show ?thesis
+    sorry
+qed
+ *)
+
 
 (* Fundamentals of Alg. Graph Transformation
    Pushout composition
