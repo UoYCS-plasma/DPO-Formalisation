@@ -8,14 +8,18 @@ locale pullback_construction =
   for B D C f g
 begin
 
-abbreviation V where \<open>V \<equiv> {(x,y). x \<in> V\<^bsub>B\<^esub> \<and> y \<in> V\<^bsub>C\<^esub> \<and> \<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y}\<close>
-abbreviation E where \<open>E \<equiv> {(x,y). x \<in> E\<^bsub>B\<^esub> \<and> y \<in> E\<^bsub>C\<^esub> \<and> \<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y}\<close>
+abbreviation V where 
+  \<open>V \<equiv> {(x,y). x \<in> V\<^bsub>B\<^esub> \<and> y \<in> V\<^bsub>C\<^esub> \<and> \<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y}\<close>
+abbreviation E where 
+  \<open>E \<equiv> {(x,y). x \<in> E\<^bsub>B\<^esub> \<and> y \<in> E\<^bsub>C\<^esub> \<and> \<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y}\<close>
 fun s where \<open>s (x,y) = (s\<^bsub>B\<^esub> x, s\<^bsub>C\<^esub> y)\<close>
 fun t where \<open>t (x,y) = (t\<^bsub>B\<^esub> x, t\<^bsub>C\<^esub> y)\<close>
 fun l where \<open>l (x,_) = l\<^bsub>B\<^esub> x\<close>
 fun m where \<open>m (x,_) = m\<^bsub>B\<^esub> x\<close>
 
-definition A where \<open>A \<equiv> \<lparr>nodes = V, edges = E, source = s, target = t, node_label = l, edge_label = m\<rparr>\<close>
+definition A where 
+  \<open>A \<equiv> \<lparr>nodes = V, edges = E, source = s, target = t
+       ,node_label = l, edge_label = m\<rparr>\<close>
 
 
 sublocale A: graph A
@@ -51,8 +55,9 @@ next
     by (auto simp add: A_def f.target_preserve g.target_preserve)
 qed
 
+definition b :: "('a \<times> 'g, 'a, 'b \<times> 'h, 'b) pre_morph" where 
+  \<open>b \<equiv> \<lparr>node_map = fst, edge_map = fst\<rparr>\<close>
 
-definition b :: "('a \<times> 'g, 'a, 'b \<times> 'h, 'b) pre_morph" where \<open>b \<equiv> \<lparr>node_map = fst, edge_map = fst\<rparr>\<close>
 sublocale b: morphism A B b
   by standard (auto simp add: A_def b_def)
 
@@ -67,6 +72,7 @@ sublocale c: morphism A C c
  
 (* Proof: Fundamentals of Alg. Graph Trans, Ehrig, Prange Taentzer *)
 sublocale pb: pullback_diagram A B C D b c f g
+
 proof
   show \<open>\<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>A\<^esub>\<close> for v
     using that
@@ -261,20 +267,11 @@ qed
 
 lemma reduced_chain_condition_nodes:
   fixes x y
-  assumes 
-    \<open>x \<in> V\<^bsub>B\<^esub>\<close>
-    \<open>y \<in> V\<^bsub>C\<^esub>\<close>
-    \<open>\<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y\<close>
-  shows \<open>(\<exists>a1 \<in> V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2 \<in> V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y)\<close>
-proof 
-  show \<open>\<exists>a1\<in>V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x\<close>
-    using assms
-    by (auto simp add: A_def b_def) 
-next
-  show \<open>\<exists>a2\<in>V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y\<close>
-    using assms
-    by (auto simp add: A_def c_def) 
-qed
+  assumes \<open>x \<in> V\<^bsub>B\<^esub>\<close> \<open>y \<in> V\<^bsub>C\<^esub>\<close> \<open>\<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y\<close>
+  shows \<open>\<exists>a \<in> V\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>V a = x \<and> \<^bsub>c\<^esub>\<^sub>V a = y)\<close>
+  using pb.node_commutativity assms
+  by (auto simp add: morph_comp_def A_def c_def b_def)
+
 
 lemma (in pullback_diagram) reduced_chain_condition_nodes:
   fixes x y
@@ -282,7 +279,7 @@ lemma (in pullback_diagram) reduced_chain_condition_nodes:
     \<open>x \<in> V\<^bsub>B\<^esub>\<close>
     \<open>y \<in> V\<^bsub>C\<^esub>\<close>
     \<open>\<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y\<close>
-  shows \<open>(\<exists>a1 \<in> V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2 \<in> V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y)\<close>
+  shows \<open>\<exists>a \<in> V\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>V a = x \<and> \<^bsub>c\<^esub>\<^sub>V a = y)\<close>
 proof -
   interpret constr: pullback_construction ..
 
@@ -309,16 +306,9 @@ lemma reduced_chain_condition_edges:
     \<open>x \<in> E\<^bsub>B\<^esub>\<close>
     \<open>y \<in> E\<^bsub>C\<^esub>\<close>
     \<open>\<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y\<close>
-  shows \<open>(\<exists>a1 \<in> E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2 \<in> E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y)\<close>
-proof 
-  show \<open>\<exists>a1\<in>E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x\<close>
-    using assms
-    by (auto simp add: A_def b_def) 
-next
-  show \<open>\<exists>a2\<in>E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y\<close>
-    using assms
-    by (auto simp add: A_def c_def) 
-qed
+  shows \<open>\<exists>a \<in> E\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>E a = x \<and> \<^bsub>c\<^esub>\<^sub>E a = y)\<close>
+  using  assms
+  by (auto simp add: morph_comp_def A_def c_def b_def)
 
 lemma (in pullback_diagram) reduced_chain_condition_edges:
   fixes x y
@@ -326,7 +316,7 @@ lemma (in pullback_diagram) reduced_chain_condition_edges:
     \<open>x \<in> E\<^bsub>B\<^esub>\<close>
     \<open>y \<in> E\<^bsub>C\<^esub>\<close>
     \<open>\<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y\<close>
-  shows \<open>(\<exists>a1 \<in> E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2 \<in> E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y)\<close>
+  shows \<open>\<exists>a \<in> E\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>E a = x \<and> \<^bsub>c\<^esub>\<^sub>E a = y)\<close>
 proof -
   interpret constr: pullback_construction ..
 
@@ -349,41 +339,5 @@ qed
 
 end
 
-(* 
-
-lemma pushout_pullback_decomposition:
-  assumes 
-    "1+2": \<open>pushout_diagram A E C F (r \<circ>\<^sub>\<rightarrow> k) l v (w \<circ>\<^sub>\<rightarrow> u)\<close> and
-    "2pb": \<open>pullback_diagram B E D F r s v w\<close> and
-        w: \<open>injective_morphism D F w\<close> and
-        k: \<open>injective_morphism A B k\<close>
-  shows \<open> pushout_diagram A B C D k l s u 
-        \<and> pullback_diagram A B C D k l s u 
-        \<and> pushout_diagram B E D F r s v w\<close>
-proof -
-  interpret "1+2": pushout_diagram A E C F "r \<circ>\<^sub>\<rightarrow> k" l v "w \<circ>\<^sub>\<rightarrow> u"
-    using "1+2" by assumption
-
-  interpret "2pb": pullback_diagram B E D F r s v w
-    using "2pb" by assumption
-
-  interpret w: injective_morphism D F w
-    using w by assumption
-
-  interpret k: injective_morphism A B k
-    using k by assumption
-
-  (* proof  https://link.springer.com/content/pdf/10.1007/3-540-31188-2.pdf?pdf=button 
-      PDF P. 104
-  *)
-  interpret r: injective_morphism B E r
-    using "2pb.g_inj_imp_b_inj"[OF w] by assumption
-
-  interpret "rk": injective_morphism A E "r \<circ>\<^sub>\<rightarrow> k"
-    using inj_comp_inj[OF k r.injective_morphism_axioms] by assumption
-
-  show ?thesis
-    sorry
-qed *)
 end
 

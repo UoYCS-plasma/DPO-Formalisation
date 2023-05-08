@@ -10,7 +10,6 @@ record ('v,'e,'l,'m) pre_graph =
   node_label :: "'v \<Rightarrow> 'l"
   edge_label :: "'e \<Rightarrow> 'm"
 
-
 notation nodes  ("V\<^bsub>_\<^esub>")
 notation edges  ("E\<^bsub>_\<^esub>")
 notation source ("s\<^bsub>_\<^esub>")
@@ -25,5 +24,4 @@ locale graph =
     finite_edges: "finite E\<^bsub>G\<^esub>" and
     source_integrity: "e \<in> E\<^bsub>G\<^esub> \<Longrightarrow> s\<^bsub>G\<^esub> e \<in> V\<^bsub>G\<^esub>" and
     target_integrity: "e \<in> E\<^bsub>G\<^esub> \<Longrightarrow> t\<^bsub>G\<^esub> e \<in> V\<^bsub>G\<^esub>"
-
 end

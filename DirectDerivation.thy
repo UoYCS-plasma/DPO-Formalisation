@@ -7,7 +7,6 @@ begin
 locale direct_derivation = 
   r: rule r b b' +
   gi: injective_morphism "lhs r" G g  + 
-
   po1: pushout_diagram "interf r" "lhs r" D G b d g c +
   po2: pushout_diagram "interf r" "rhs r" D H b' d f c'
   for r b b' G g D d c H f c'
@@ -26,11 +25,11 @@ sublocale pb2: pullback_diagram "interf r" "rhs r" D H b' d f c'
   using po2.pushout_pullback_inj_b[OF r.r.injective_morphism_axioms d_inj.injective_morphism_axioms]
   by assumption
 
-
 theorem uniqueness_direct_derivation:
   assumes 
     dd2: \<open>direct_derivation r b b' G g D' d' m H' f' m'\<close>
-  shows \<open>(\<exists>u. bijective_morphism D D' u) \<and> (\<exists>u. bijective_morphism H H' u)\<close>
+  shows \<open>(\<exists>u. bijective_morphism D D' u) \<and> 
+          (\<exists>u. bijective_morphism H H' u)\<close>
 proof -
   interpret dd2: direct_derivation r b b' G g D' d' m H' f' m'
     using dd2 by assumption
@@ -51,23 +50,29 @@ proof -
      *)
 
     (* front right *)      
-    interpret fr: pullback_construction D G D' c m ..
+  interpret fr: pullback_construction D G D' c m ..
 
     (* back left *)
-    interpret bt: pullback_diagram "interf r" "interf r" "interf r" "lhs r" idM idM b b
-      using fun_algrtr_4_7_2[OF r.k.injective_morphism_axioms] by assumption
+interpret bl: pullback_diagram "interf r" "interf r" 
+                "interf r" "lhs r" idM idM b b
+  using fun_algrtr_4_7_2[OF r.k.injective_morphism_axioms]
+  by assumption
 
     (* back right *)
     interpret pb_frontleft: pullback_diagram "interf r" "lhs r" D' G b d' g m
       using dd2.pb1.pullback_diagram_axioms
       by assumption
 
-    interpret backside: pullback_diagram "interf r" D' "interf r" G \<open>d' \<circ>\<^sub>\<rightarrow> idM\<close> idM m \<open>g \<circ>\<^sub>\<rightarrow> b\<close>
-      using pullback_composition[OF bt.pullback_diagram_axioms dd2.pb1.flip_diagram] 
-      by assumption
+interpret backside: pullback_diagram "interf r" D' "interf r" G 
+                      \<open>d' \<circ>\<^sub>\<rightarrow> idM\<close> idM m \<open>g \<circ>\<^sub>\<rightarrow> b\<close>
+  using pullback_composition[OF bl.pullback_diagram_axioms 
+                                dd2.pb1.flip_diagram] 
+  by assumption
 
+  define h where
+    \<open>h \<equiv> \<lparr>node_map = \<lambda>v. (\<^bsub>d\<^esub>\<^sub>V v, \<^bsub>d'\<^esub>\<^sub>V v)
+         ,edge_map = \<lambda>e. (\<^bsub>d\<^esub>\<^sub>E e, \<^bsub>d'\<^esub>\<^sub>E e)\<rparr>\<close>
 
-    define h where \<open>h \<equiv> \<lparr>node_map = \<lambda>v. (\<^bsub>d\<^esub>\<^sub>V v, \<^bsub>d'\<^esub>\<^sub>V v), edge_map = \<lambda>e. (\<^bsub>d\<^esub>\<^sub>E e, \<^bsub>d'\<^esub>\<^sub>E e)\<rparr>\<close>
     interpret h: morphism "interf r" fr.A h
     proof
       show \<open>\<^bsub>h\<^esub>\<^sub>E e \<in> E\<^bsub>fr.A\<^esub>\<close> if \<open>e \<in> E\<^bsub>interf r\<^esub>\<close> for e
@@ -184,7 +189,7 @@ proof -
         by assumption
  *)
       interpret bls: pullback_diagram "interf r" D "interf r" G \<open>d \<circ>\<^sub>\<rightarrow> idM\<close> idM c \<open>g \<circ>\<^sub>\<rightarrow> b\<close>
-        using pullback_composition[OF bt.pullback_diagram_axioms  pb1.flip_diagram]
+        using pullback_composition[OF bl.pullback_diagram_axioms  pb1.flip_diagram]
         by assumption
 
 (* righthand commutative square *)
@@ -264,7 +269,6 @@ proof -
       qed
 
 
-
       have a:\<open>(\<exists>v\<in>V\<^bsub>interf r\<^esub>. \<^bsub>d'\<^esub>\<^sub>V v = x) \<or> (\<exists>v\<in>V\<^bsub>fr.A\<^esub>. \<^bsub>fr.c\<^esub>\<^sub>V v = x)\<close> if \<open>x \<in> V\<^bsub>D'\<^esub>\<close> for x
         using that
         apply (simp add: fr.A_def fr.c_def)
@@ -295,10 +299,9 @@ proof -
         by fastforce
     qed
 
-    
-    interpret k_bij: bijective_morphism fr.A D' fr.c
-      using top.b_bij_imp_g_bij[OF r.k.G.idm.bijective_morphism_axioms]
-      by assumption
+interpret k_bij: bijective_morphism fr.A D' fr.c
+  using top.b_bij_imp_g_bij[OF r.k.G.idm.bijective_morphism_axioms]
+  by assumption
 
     obtain kinv where kinv: \<open>bijective_morphism D' fr.A kinv\<close>
       and \<open>\<And>v. v \<in> V\<^bsub>fr.A\<^esub> \<Longrightarrow> \<^bsub>kinv \<circ>\<^sub>\<rightarrow> fr.c\<^esub>\<^sub>V v = v\<close> \<open>\<And>e. e \<in> E\<^bsub>fr.A\<^esub> \<Longrightarrow> \<^bsub>kinv \<circ>\<^sub>\<rightarrow> fr.c\<^esub>\<^sub>E e = e\<close>
@@ -315,11 +318,11 @@ proof -
 
     interpret br: pushout_diagram "interf r" fr.A "interf r" D h idM fr.b d
     proof -
-      have a: \<open>(\<exists>a1\<in>V\<^bsub>interf r\<^esub>. \<^bsub>h\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2\<in>V\<^bsub>interf r\<^esub>. \<^bsub>idM\<^esub>\<^sub>V a2 = y)\<close> 
+      have a: \<open>\<exists>a\<in>V\<^bsub>interf r\<^esub>. (\<^bsub>h\<^esub>\<^sub>V a = x \<and>  \<^bsub>idM\<^esub>\<^sub>V a = y)\<close> 
         if \<open>x \<in> V\<^bsub>fr.A\<^esub>\<close> \<open> y \<in> V\<^bsub>interf r\<^esub>\<close> \<open>\<^bsub>fr.b\<^esub>\<^sub>V x = \<^bsub>d\<^esub>\<^sub>V y \<close> for x y
         using back_right.reduced_chain_condition_nodes[OF that] by simp
       
-      have b: \<open>(\<exists>a1\<in>E\<^bsub>interf r\<^esub>. \<^bsub>h\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2\<in>E\<^bsub>interf r\<^esub>. \<^bsub>idM\<^esub>\<^sub>E a2 = y)\<close> 
+      have b: \<open>\<exists>a\<in>E\<^bsub>interf r\<^esub>. (\<^bsub>h\<^esub>\<^sub>E a = x \<and> \<^bsub>idM\<^esub>\<^sub>E a = y)\<close> 
         if \<open>x \<in> E\<^bsub>fr.A\<^esub>\<close> \<open> y \<in> E\<^bsub>interf r\<^esub>\<close> \<open> \<^bsub>fr.b\<^esub>\<^sub>E x = \<^bsub>d\<^esub>\<^sub>E y \<close> for x y
         using back_right.reduced_chain_condition_edges[OF that] by simp
 
@@ -353,20 +356,22 @@ proof -
         by assumption
     qed
 
-    obtain linv where linv:\<open>bijective_morphism D fr.A linv\<close>
-      and \<open>\<And>v. v \<in> V\<^bsub>D\<^esub>\<Longrightarrow> \<^bsub>fr.b \<circ>\<^sub>\<rightarrow>linv\<^esub>\<^sub>V v = v\<close>  \<open>\<And>e. e \<in> E\<^bsub>D\<^esub>\<Longrightarrow> \<^bsub>fr.b \<circ>\<^sub>\<rightarrow>linv\<^esub>\<^sub>E e = e\<close>
-      and \<open>\<And>v. v \<in> V\<^bsub>fr.A\<^esub>\<Longrightarrow> \<^bsub>linv \<circ>\<^sub>\<rightarrow> fr.b \<^esub>\<^sub>V v = v\<close> \<open>\<And>e. e \<in> E\<^bsub>fr.A\<^esub>\<Longrightarrow> \<^bsub>linv \<circ>\<^sub>\<rightarrow> fr.b \<^esub>\<^sub>E e= e\<close>
-      by (metis l_bij.ex_inv)
-    
+obtain linv where linv:\<open>bijective_morphism D fr.A linv\<close>
+  and \<open>\<And>v. v \<in> V\<^bsub>D\<^esub>\<Longrightarrow> \<^bsub>fr.b \<circ>\<^sub>\<rightarrow>linv\<^esub>\<^sub>V v = v\<close> 
+      \<open>\<And>e. e \<in> E\<^bsub>D\<^esub>\<Longrightarrow> \<^bsub>fr.b \<circ>\<^sub>\<rightarrow>linv\<^esub>\<^sub>E e = e\<close>
+  and \<open>\<And>v. v \<in> V\<^bsub>fr.A\<^esub>\<Longrightarrow> \<^bsub>linv \<circ>\<^sub>\<rightarrow> fr.b \<^esub>\<^sub>V v = v\<close> 
+      \<open>\<And>e. e \<in> E\<^bsub>fr.A\<^esub>\<Longrightarrow> \<^bsub>linv \<circ>\<^sub>\<rightarrow> fr.b \<^esub>\<^sub>E e= e\<close>
+  by (metis l_bij.ex_inv)
+
     interpret linv: bijective_morphism D fr.A linv
       using linv by assumption
 
+define u where \<open>u \<equiv> fr.c \<circ>\<^sub>\<rightarrow> linv\<close>
 
-    define u where \<open>u \<equiv> fr.c \<circ>\<^sub>\<rightarrow> linv\<close>
-    interpret u: bijective_morphism D D' u
-      using bij_comp_bij_is_bij[OF linv k_bij.bijective_morphism_axioms]
-      by (simp add: u_def)
-   
+  interpret u: bijective_morphism D D' u
+  using bij_comp_bij_is_bij[OF linv k_bij.bijective_morphism_axioms]
+  by (simp add: u_def)
+
     obtain uinv where uinv:\<open>bijective_morphism D' D uinv\<close>
       and \<open>\<And>v. v\<in>V\<^bsub>D\<^esub> \<Longrightarrow> \<^bsub>uinv \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = v\<close> \<open>\<And>e. e\<in>E\<^bsub>D\<^esub> \<Longrightarrow> \<^bsub>uinv \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = e\<close>
       \<open>\<And>v. v\<in>V\<^bsub>D'\<^esub> \<Longrightarrow> \<^bsub>u \<circ>\<^sub>\<rightarrow> uinv\<^esub>\<^sub>V v = v\<close> \<open>\<And>e. e\<in>E\<^bsub>D'\<^esub> \<Longrightarrow> \<^bsub>u \<circ>\<^sub>\<rightarrow> uinv\<^esub>\<^sub>E e = e\<close>
@@ -384,7 +389,7 @@ proof -
       have \<open>\<^bsub>u \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v = \<^bsub>fr.c \<circ>\<^sub>\<rightarrow> linv \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>
         by (simp add: u_def)
       also have \<open>\<dots> = \<^bsub>fr.c \<circ>\<^sub>\<rightarrow> linv \<circ>\<^sub>\<rightarrow> fr.b  \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
-        by (simp add: morph_comp_def fr.c_def fr.b_def h_def)
+        by (simp add: morph_comp_def fr.b_def h_def)
       also have \<open>\<dots> = \<^bsub>fr.c  \<circ>\<^sub>\<rightarrow> h\<^esub>\<^sub>V v\<close>
         using  \<open>\<And>v. v\<in> V\<^bsub>fr.A\<^esub>\<Longrightarrow> \<^bsub>linv \<circ>\<^sub>\<rightarrow> fr.b \<^esub>\<^sub>V v = v \<close> h.morph_node_range that
         by (simp add: morph_comp_def  h_def)
@@ -439,7 +444,7 @@ proof -
 
 
 (* u' *)
-
+    thm  po2.pushout_diagram_axioms
     interpret m'u: morphism D H' "m' \<circ>\<^sub>\<rightarrow> u"
       using wf_morph_comp[OF u.morphism_axioms dd2.po2.g.morphism_axioms] 
       by assumption
@@ -480,15 +485,9 @@ proof -
 
       have u'u'': \<open>(\<forall>v\<in>V\<^bsub>H'\<^esub>. \<^bsub>u' \<circ>\<^sub>\<rightarrow> u''\<^esub>\<^sub>V v = v) \<and> (\<forall>e\<in>E\<^bsub>H'\<^esub>. \<^bsub>u' \<circ>\<^sub>\<rightarrow> u''\<^esub>\<^sub>E e = e)\<close>
       proof -
-        obtain x where x: \<open>morphism H' H' x\<close>
-         \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e\<close>
-         \<open>\<And>v. v\<in>V\<^bsub>D'\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>V v = \<^bsub>m'\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>D'\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>E e = \<^bsub>m'\<^esub>\<^sub>E e\<close>
-          using dd2.po2.universal_property_exist_gen[OF dd2.po2.f.H.graph_axioms dd2.po2.f.morphism_axioms
-            dd2.po2.g.morphism_axioms ] dd2.po2.node_commutativity dd2.po2.edge_commutativity
-          by fast       
-
         have a'v: \<open>\<^bsub>f'\<^esub>\<^sub>V v = \<^bsub>u' \<circ>\<^sub>\<rightarrow> u'' \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>rhs r\<^esub>\<close> for v
-          using \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u'' \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v\<close> \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u' \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close> that
+          using \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u'' \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v\<close> 
+                \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u' \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close> that
           by (simp add: morph_comp_def)
         have a'e: \<open>\<^bsub>f'\<^esub>\<^sub>E e = \<^bsub>u' \<circ>\<^sub>\<rightarrow> u'' \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>E e\<close> if \<open>e \<in> E\<^bsub>rhs r\<^esub>\<close> for e
           using \<open>\<And>e. e\<in>E\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u'' \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>E e = \<^bsub>f\<^esub>\<^sub>E e\<close> \<open>\<And>e. e\<in>E\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u' \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e\<close> that
@@ -523,26 +522,27 @@ proof -
             using \<open>\<And>e. e \<in> E\<^bsub>D'\<^esub> \<Longrightarrow> \<^bsub>u'' \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>E e = \<^bsub>c' \<circ>\<^sub>\<rightarrow> uinv\<^esub>\<^sub>E e\<close> that
             by (simp add: morph_comp_def)
         qed
+         
+        have zz1: \<open>\<forall>v\<in>V\<^bsub>interf r\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>m' \<circ>\<^sub>\<rightarrow> d'\<^esub>\<^sub>V v\<close>
+          by (simp add: dd2.po2.node_commutativity)
+        have zz2: \<open>\<forall>e\<in>E\<^bsub>interf r\<^esub>. \<^bsub>f' \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>E e = \<^bsub>m' \<circ>\<^sub>\<rightarrow> d'\<^esub>\<^sub>E e\<close>
+          by (simp add: dd2.po2.edge_commutativity)
+        have zz3: \<open> morphism H' H' (u' \<circ>\<^sub>\<rightarrow> u'') \<and> (\<forall>v\<in>V\<^bsub>rhs r\<^esub>. \<^bsub>(u' \<circ>\<^sub>\<rightarrow> u'') \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>rhs r\<^esub>. \<^bsub>(u' \<circ>\<^sub>\<rightarrow> u'') \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) 
+\<and> (\<forall>v\<in>V\<^bsub>D'\<^esub>. \<^bsub>(u' \<circ>\<^sub>\<rightarrow> u'') \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>V v = \<^bsub>m'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D'\<^esub>. \<^bsub>(u' \<circ>\<^sub>\<rightarrow> u'') \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>E e = \<^bsub>m'\<^esub>\<^sub>E e)\<close>
+          using a'e a'v b'e b'v u' u'' wf_morph_comp by fastforce
+        have zz4: \<open>morphism H' H' idM \<and> (\<forall>v\<in>V\<^bsub>rhs r\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>rhs r\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>D'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>V v = \<^bsub>m'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D'\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>E e = \<^bsub>m'\<^esub>\<^sub>E e)\<close>
+          using dd2.po2.f.H.idm.morphism_axioms by force
 
         show ?thesis
-          using a'v a'e b'v b'e 
-            \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>E e = \<^bsub>f'\<^esub>\<^sub>E e\<close>
-            \<open>\<And>v. v\<in>V\<^bsub>D'\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>V v = \<^bsub>m'\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>D'\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> m'\<^esub>\<^sub>E e = \<^bsub>m'\<^esub>\<^sub>E e\<close>
-            dd2.po2.joint_surjectivity_nodes dd2.po2.joint_surjectivity_edges
-          by (force  simp add: morph_comp_def)
+          using ex_eq[OF dd2.po2.universal_property_exist_gen[OF dd2.po2.f.H.graph_axioms dd2.po2.f.morphism_axioms
+            dd2.po2.g.morphism_axioms zz1 zz2] zz3 zz4]
+          by simp
       qed
 
 
 
       have u''u': \<open>(\<forall>v\<in>V\<^bsub>H\<^esub>. \<^bsub>u'' \<circ>\<^sub>\<rightarrow> u'\<^esub>\<^sub>V v = v) \<and> (\<forall>e\<in>E\<^bsub>H\<^esub>. \<^bsub>u'' \<circ>\<^sub>\<rightarrow> u'\<^esub>\<^sub>E e = e)\<close>
       proof -
-        obtain x where x: \<open>morphism H H x\<close>
-         \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f\<^esub>\<^sub>E e\<close>
-         \<open>\<And>v. v\<in>V\<^bsub>D\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>D\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e\<close>
-          using po2.universal_property_exist_gen[OF po2.f.H.graph_axioms po2.f.morphism_axioms
-            po2.g.morphism_axioms ] po2.node_commutativity po2.edge_commutativity
-          by fast
-
         have a'v: \<open>\<^bsub>f\<^esub>\<^sub>V v = \<^bsub>u'' \<circ>\<^sub>\<rightarrow> u' \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v\<close> if \<open>v \<in> V\<^bsub>rhs r\<^esub>\<close> for v
           using \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u'' \<circ>\<^sub>\<rightarrow> f'\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v\<close> \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>u' \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f'\<^esub>\<^sub>V v\<close> that
           by (simp add: morph_comp_def)
@@ -575,13 +575,25 @@ proof -
             by (simp add: morph_comp_def)
         qed
 
+        have zz1: \<open>\<forall>v\<in>V\<^bsub>interf r\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>V v = \<^bsub>c' \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>V v\<close>
+          using po2.node_commutativity
+          by blast
+
+        have zz2: \<open>\<forall>e\<in>E\<^bsub>interf r\<^esub>. \<^bsub>f \<circ>\<^sub>\<rightarrow> b'\<^esub>\<^sub>E e = \<^bsub>c' \<circ>\<^sub>\<rightarrow> d\<^esub>\<^sub>E e\<close>
+          using po2.edge_commutativity
+          by blast
+
+        have zz3: \<open>morphism H H (u'' \<circ>\<^sub>\<rightarrow> u') \<and> (\<forall>v\<in>V\<^bsub>rhs r\<^esub>. \<^bsub>(u'' \<circ>\<^sub>\<rightarrow> u') \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>rhs r\<^esub>. \<^bsub>(u'' \<circ>\<^sub>\<rightarrow> u') \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>(u'' \<circ>\<^sub>\<rightarrow> u') \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>(u'' \<circ>\<^sub>\<rightarrow> u') \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e)\<close>
+          using a'e a'v b'e b'v u' u'' wf_morph_comp by force
+
+        have zz4: \<open>morphism H H idM \<and> (\<forall>v\<in>V\<^bsub>rhs r\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>rhs r\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f\<^esub>\<^sub>E e) \<and> (\<forall>v\<in>V\<^bsub>D\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v) \<and> (\<forall>e\<in>E\<^bsub>D\<^esub>. \<^bsub>idM \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e)\<close>
+          using po2.f.H.idm.morphism_axioms by force
+
         show ?thesis
-          using a'v a'e b'v b'e
-            \<open>\<And>v. v\<in>V\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>V v = \<^bsub>f\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>rhs r\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> f\<^esub>\<^sub>E e = \<^bsub>f\<^esub>\<^sub>E e\<close>
-            \<open>\<And>v. v\<in>V\<^bsub>D\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v\<close> \<open>\<And>e. e\<in>E\<^bsub>D\<^esub> \<Longrightarrow> \<^bsub>x \<circ>\<^sub>\<rightarrow> c'\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e\<close>
-            po2.joint_surjectivity_nodes po2.joint_surjectivity_edges
-          by (force simp add: morph_comp_def)
-      qed
+          using ex_eq[OF po2.universal_property_exist_gen[OF po2.f.H.graph_axioms po2.f.morphism_axioms
+            po2.g.morphism_axioms zz1 zz2] zz3 zz4]
+          by simp
+     qed
 
 
       interpret bij_u': bijective_morphism H H' u'

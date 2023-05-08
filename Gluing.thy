@@ -314,22 +314,20 @@ qed
   Definition 1: https://doi.org/10.1002/mana.19790910111
 *)
 
+
 lemma reduced_chain_condition_nodes:
   fixes x y
   assumes
     \<open>x \<in> V\<^bsub>R\<^esub>\<close>
 and \<open>y \<in> V\<^bsub>D\<^esub>\<close>
 and \<open>\<^bsub>h\<^esub>\<^sub>V x = \<^bsub>c\<^esub>\<^sub>V y\<close>
-shows \<open>(\<exists>a1 \<in> V\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2 \<in> V\<^bsub>K\<^esub>. \<^bsub>d\<^esub>\<^sub>V a2 = y)\<close>
-proof
-  show \<open>\<exists>a1\<in>V\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x\<close>
-    using assms 
-    by (auto simp add: h_def c_def) (metis (no_types, opaque_lifting) Inr_Inl_False image_iff)
-next
-  show \<open>\<exists>a2\<in>V\<^bsub>K\<^esub>. \<^bsub>d\<^esub>\<^sub>V a2 = y\<close>
-    using assms inv_into_f_f[OF r.inj_nodes]
-    by (auto simp add: h_def c_def) (metis (no_types, opaque_lifting) Inl_Inr_False Inl_inject image_iff)
-qed
+shows \<open>\<exists>a \<in> V\<^bsub>K\<^esub>. (\<^bsub>b\<^esub>\<^sub>V a = x \<and> \<^bsub>d\<^esub>\<^sub>V a = y)\<close>
+  using assms  Inr_Inl_False image_iff Inl_inject image_iff po.node_commutativity
+  unfolding h_def c_def morph_comp_def
+  apply (auto simp add: c_def h_def morph_comp_def )
+  using assms  Inr_Inl_False image_iff Inl_inject image_iff po.node_commutativity
+  using inv_into_f_f r.injective_morphism_axioms
+  by (smt (verit, del_insts) Inl_inject Inr_Inl_False image_iff)
 
 lemma reduced_chain_condition_edges:
   fixes x y
@@ -337,16 +335,11 @@ lemma reduced_chain_condition_edges:
     \<open>x \<in> E\<^bsub>R\<^esub>\<close>
 and \<open>y \<in> E\<^bsub>D\<^esub>\<close>
 and \<open>\<^bsub>h\<^esub>\<^sub>E x = \<^bsub>c\<^esub>\<^sub>E y\<close>
-shows \<open>(\<exists>a1 \<in> E\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2 \<in> E\<^bsub>K\<^esub>. \<^bsub>d\<^esub>\<^sub>E a2 = y)\<close>
-proof
-  show \<open>\<exists>a1\<in>E\<^bsub>K\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x\<close>
-    using assms 
-    by (auto simp add: h_def c_def) (metis (no_types, opaque_lifting) Inr_Inl_False image_iff)
-next
-  show \<open>\<exists>a2\<in>E\<^bsub>K\<^esub>. \<^bsub>d\<^esub>\<^sub>E a2 = y\<close>
-    using assms 
-    by (auto simp add: h_def c_def) (metis (no_types, lifting) Inl_Inr_False Inl_inject image_iff inv_into_f_f r.inj_edges)
-qed 
+shows \<open>\<exists>a \<in> E\<^bsub>K\<^esub>. (\<^bsub>b\<^esub>\<^sub>E a = x \<and> \<^bsub>d\<^esub>\<^sub>E a = y)\<close>
+  using assms  Inr_Inl_False image_iff Inl_inject image_iff po.edge_commutativity
+  unfolding h_def c_def morph_comp_def
+  apply auto
+  by (smt (verit, del_insts) Inl_inject Inr_Inl_False image_iff)
 
 
 lemma pushout_pullback_inj:
@@ -475,7 +468,7 @@ lemma reduced_chain_condition_nodes:
     \<open>x \<in> V\<^bsub>B\<^esub>\<close>
     \<open>y \<in> V\<^bsub>C\<^esub>\<close>
     \<open>\<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y\<close>
-  shows \<open>(\<exists>a1 \<in> V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2 \<in> V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y)\<close>
+  shows \<open>\<exists>a \<in> V\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>V a = x \<and> \<^bsub>c\<^esub>\<^sub>V a = y)\<close>
 proof -
   interpret b: injective_morphism A B b
     using \<open>injective_morphism A B b\<close> by assumption
@@ -514,7 +507,7 @@ lemma reduced_chain_condition_edges:
     \<open>x \<in> E\<^bsub>B\<^esub>\<close>
     \<open>y \<in> E\<^bsub>C\<^esub>\<close>
     \<open>\<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y\<close>
-  shows \<open>(\<exists>a1 \<in> E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2 \<in> E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y)\<close>
+  shows \<open>\<exists>a \<in> E\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>E a = x \<and> \<^bsub>c\<^esub>\<^sub>E a = y)\<close>
 proof -
   interpret b: injective_morphism A B b
     using \<open>injective_morphism A B b\<close> by assumption
@@ -660,8 +653,8 @@ lemma po_characterization:
     g: \<open>injective_morphism C D g\<close> and
     node_commutativity: \<open>\<And>v. v \<in> V\<^bsub>A\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>V v = \<^bsub>g \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>V v\<close> and
     edge_commutativity: \<open>\<And>e. e \<in> E\<^bsub>A\<^esub> \<Longrightarrow> \<^bsub>f \<circ>\<^sub>\<rightarrow> b\<^esub>\<^sub>E e = \<^bsub>g \<circ>\<^sub>\<rightarrow> c\<^esub>\<^sub>E e\<close> and
-    reduced_chain_condition_nodes: \<open>\<And>x y. x \<in> V\<^bsub>B\<^esub> \<Longrightarrow> y \<in> V\<^bsub>C\<^esub> \<Longrightarrow> \<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y \<Longrightarrow> (\<exists>a1 \<in> V\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2 \<in> V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V a2 = y)\<close> and
-    reduced_chain_condition_edges: \<open>\<And>x y. x \<in> E\<^bsub>B\<^esub> \<Longrightarrow> y \<in> E\<^bsub>C\<^esub> \<Longrightarrow> \<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y \<Longrightarrow> (\<exists>a1 \<in> E\<^bsub>A\<^esub>. \<^bsub>b\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2 \<in> E\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>E a2 = y)\<close> and
+    reduced_chain_condition_nodes: \<open>\<And>x y. x \<in> V\<^bsub>B\<^esub> \<Longrightarrow> y \<in> V\<^bsub>C\<^esub> \<Longrightarrow> \<^bsub>f\<^esub>\<^sub>V x = \<^bsub>g\<^esub>\<^sub>V y \<Longrightarrow> (\<exists>a \<in> V\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>V a = x \<and> \<^bsub>c\<^esub>\<^sub>V a = y))\<close> and
+    reduced_chain_condition_edges: \<open>\<And>x y. x \<in> E\<^bsub>B\<^esub> \<Longrightarrow> y \<in> E\<^bsub>C\<^esub> \<Longrightarrow> \<^bsub>f\<^esub>\<^sub>E x = \<^bsub>g\<^esub>\<^sub>E y \<Longrightarrow> (\<exists>a \<in> E\<^bsub>A\<^esub>. (\<^bsub>b\<^esub>\<^sub>E a = x \<and> \<^bsub>c\<^esub>\<^sub>E a = y))\<close> and
     joint_surjectivity_nodes: \<open>\<And>x. x \<in> V\<^bsub>D\<^esub> \<Longrightarrow> (\<exists>v \<in> V\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>V v = x) \<or> (\<exists>v \<in> V\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>V v = x)\<close> and
     joint_surjectivity_edges: \<open>\<And>x. x \<in> E\<^bsub>D\<^esub> \<Longrightarrow> (\<exists>e \<in> E\<^bsub>C\<^esub>. \<^bsub>g\<^esub>\<^sub>E e = x) \<or> (\<exists>e \<in> E\<^bsub>B\<^esub>. \<^bsub>f\<^esub>\<^sub>E e = x)\<close>
   shows \<open>pushout_diagram A B C D b c f g\<close>
@@ -670,6 +663,8 @@ proof -
   interpret c: injective_morphism A C c using c by assumption
   interpret f: injective_morphism B D f using f by assumption
   interpret g: injective_morphism C D g using g by assumption
+
+  
 
   interpret constr: gluing A C B c b ..
 
@@ -998,10 +993,11 @@ proof
 
     interpret br: pushout_diagram A fr.A A C h idM fr.b c
     proof -
-      have a: \<open>(\<exists>a1\<in>V\<^bsub>A\<^esub>. \<^bsub>h\<^esub>\<^sub>V a1 = x) \<and> (\<exists>a2\<in>V\<^bsub>A\<^esub>. \<^bsub>idM\<^esub>\<^sub>V a2 = y)\<close> if \<open>x \<in> V\<^bsub>fr.A\<^esub>\<close> \<open> y \<in> V\<^bsub>A\<^esub>\<close> \<open> \<^bsub>fr.b\<^esub>\<^sub>V x = \<^bsub>c\<^esub>\<^sub>V y \<close> for x y
-        using back_right.reduced_chain_condition_nodes[OF that] by simp
+      have a: \<open>\<exists>a\<in>V\<^bsub>A\<^esub>. (\<^bsub>h\<^esub>\<^sub>V a = x \<and> \<^bsub>idM\<^esub>\<^sub>V a = y)\<close> if \<open>x \<in> V\<^bsub>fr.A\<^esub>\<close> \<open> y \<in> V\<^bsub>A\<^esub>\<close> \<open> \<^bsub>fr.b\<^esub>\<^sub>V x = \<^bsub>c\<^esub>\<^sub>V y \<close> for x y
+        using back_right.reduced_chain_condition_nodes[OF that]
+        by simp
       
-      have b: \<open>(\<exists>a1\<in>E\<^bsub>A\<^esub>. \<^bsub>h\<^esub>\<^sub>E a1 = x) \<and> (\<exists>a2\<in>E\<^bsub>A\<^esub>. \<^bsub>idM\<^esub>\<^sub>E a2 = y)\<close> if \<open>x \<in> E\<^bsub>fr.A\<^esub>\<close> \<open> y \<in> E\<^bsub>A\<^esub>\<close> \<open> \<^bsub>fr.b\<^esub>\<^sub>E x = \<^bsub>c\<^esub>\<^sub>E y \<close> for x y
+      have b: \<open>\<exists>a\<in>E\<^bsub>A\<^esub>. (\<^bsub>h\<^esub>\<^sub>E a = x \<and> \<^bsub>idM\<^esub>\<^sub>E a = y)\<close> if \<open>x \<in> E\<^bsub>fr.A\<^esub>\<close> \<open> y \<in> E\<^bsub>A\<^esub>\<close> \<open> \<^bsub>fr.b\<^esub>\<^sub>E x = \<^bsub>c\<^esub>\<^sub>E y \<close> for x y
         using back_right.reduced_chain_condition_edges[OF that] by simp
 
       have cc: \<open>(\<exists>v\<in>V\<^bsub>A\<^esub>. \<^bsub>c\<^esub>\<^sub>V v = x) \<or> (\<exists>v\<in>V\<^bsub>fr.A\<^esub>. \<^bsub>fr.b\<^esub>\<^sub>V v = x)\<close> if \<open>x \<in> V\<^bsub>C\<^esub> \<close> for x
@@ -1013,10 +1009,11 @@ proof
         by (metis b.injective_morphism_axioms c fr.reduced_chain_condition_edges g.morph_edge_range po2.joint_surjectivity_edges reduced_chain_condition_edges)
 
       show \<open>pushout_diagram A fr.A A C h idM fr.b c\<close>
-        using po_characterization[
-            OF back_right.g_inj_imp_b_inj[OF c] b.G.idm.injective_morphism_axioms h.injective_morphism_axioms
-            c back_right.node_commutativity back_right.edge_commutativity a b cc dd]
-        by blast
+        using po_characterization[ OF back_right.g_inj_imp_b_inj[OF c] b.G.idm.injective_morphism_axioms h.injective_morphism_axioms
+            c back_right.node_commutativity back_right.edge_commutativity]
+        using back_right.reduced_chain_condition_nodes back_right.reduced_chain_condition_edges
+        using cc dd by blast
+          
     qed
 
     interpret l_bij: bijective_morphism fr.A C fr.b
