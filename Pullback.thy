@@ -22,6 +22,8 @@ assumes
             (\<forall>v \<in> V\<^bsub>A'\<^esub>. \<^bsub>c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>V v = \<^bsub>c'\<^esub>\<^sub>V v) \<and>
             (\<forall>e \<in> E\<^bsub>A'\<^esub>. \<^bsub>c \<circ>\<^sub>\<rightarrow> u\<^esub>\<^sub>E e = \<^bsub>c'\<^esub>\<^sub>E e))
             A'\<close>
+
+context pullback_diagram
 begin
 
 
@@ -875,6 +877,7 @@ lemma pullback_composition:
     2: \<open>pullback_diagram B E D F e g' e'' e'\<close>
   shows \<open>pullback_diagram A E C F (e \<circ>\<^sub>\<rightarrow> f) g e'' (e' \<circ>\<^sub>\<rightarrow> f')\<close>
 proof -
+
   interpret 1: pullback_diagram A B C D f g g' f'
     using 1 by assumption
 
